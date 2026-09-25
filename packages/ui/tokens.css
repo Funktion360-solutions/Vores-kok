@@ -1,0 +1,66 @@
+/* GENERATED from packages/ui/src/tokens.ts — run `pnpm --filter @vores-kok/ui build:css`. */
+:root {
+  --vk-cream: #FAF6EF;
+  --vk-paper: #FFFDF9;
+  --vk-sand: #F2EADF;
+  --vk-line: #E6DACB;
+  --vk-ink: #2A211C;
+  --vk-ink-soft: #62554B;
+  --vk-ink-muted: #7A6C60;
+  --vk-terracotta: #A84B24;
+  --vk-terracotta-dark: #8C3D1C;
+  --vk-terracotta-soft: #F6E4DA;
+  --vk-sage: #56663F;
+  --vk-sage-soft: #E7ECDD;
+  --vk-honey: #B7811F;
+  --vk-honey-soft: #F8EDD3;
+  --vk-danger: #B3261E;
+  --vk-danger-soft: #FBE3E1;
+  --vk-white: #FFFFFF;
+  --vk-radius-sm: 8px;
+  --vk-radius-md: 12px;
+  --vk-radius-lg: 18px;
+  --vk-radius-xl: 26px;
+  --vk-radius-full: 999px;
+  --vk-touch: 48px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --vk-cream: #1C1714;
+    --vk-paper: #241E1A;
+    --vk-sand: #2E2621;
+    --vk-line: #3D332C;
+    --vk-ink: #F4ECE3;
+    --vk-ink-soft: #D2C4B6;
+    --vk-ink-muted: #B2A393;
+    --vk-terracotta: #E08A62;
+    --vk-terracotta-dark: #F0A37F;
+    --vk-terracotta-soft: #3A2419;
+    --vk-sage: #A9BC8C;
+    --vk-sage-soft: #2A3122;
+    --vk-honey: #E3B55A;
+    --vk-honey-soft: #3A2F17;
+    --vk-danger: #F28B82;
+    --vk-danger-soft: #3E1F1C;
+    --vk-white: #FFFFFF;
+  }
+}
+:root[data-theme='dark'] {
+  --vk-cream: #1C1714;
+  --vk-paper: #241E1A;
+  --vk-sand: #2E2621;
+  --vk-line: #3D332C;
+  --vk-ink: #F4ECE3;
+  --vk-ink-soft: #D2C4B6;
+  --vk-ink-muted: #B2A393;
+  --vk-terracotta: #E08A62;
+  --vk-terracotta-dark: #F0A37F;
+  --vk-terracotta-soft: #3A2419;
+  --vk-sage: #A9BC8C;
+  --vk-sage-soft: #2A3122;
+  --vk-honey: #E3B55A;
+  --vk-honey-soft: #3A2F17;
+  --vk-danger: #F28B82;
+  --vk-danger-soft: #3E1F1C;
+  --vk-white: #FFFFFF;
+}
