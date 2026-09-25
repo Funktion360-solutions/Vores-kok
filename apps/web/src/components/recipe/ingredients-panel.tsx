@@ -2,7 +2,8 @@
 import { formatAmount, formatYield, scaleFactor, scaleQuantity } from '@vores-kok/domain';
 import type { RecipeIngredient } from '@vores-kok/validation';
 import { Minus, Plus, RotateCcw } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
+import { useServings } from './servings-context';
 
 function groupBySection(items: RecipeIngredient[]) {
   const groups: Array<{ section: string | null; items: RecipeIngredient[] }> = [];
@@ -16,7 +17,9 @@ function groupBySection(items: RecipeIngredient[]) {
 
 /** Ingredient list with deterministic serving scaling (packages/domain). */
 export function IngredientsPanel({ ingredients, servings, yieldUnit }: { ingredients: RecipeIngredient[]; servings: number | null; yieldUnit: string | null }) {
-  const [target, setTarget] = useState(servings ?? 0);
+  const ctx = useServings();
+  const target = ctx.servings ?? servings ?? 0;
+  const setTarget = (v: number | ((t: number) => number)) => ctx.setServings(typeof v === 'function' ? v(target) : v);
   const factor = scaleFactor(servings, target);
   const groups = useMemo(() => groupBySection(ingredients), [ingredients]);
   const step = servings && servings >= 12 ? Math.max(1, Math.round(servings / 4)) : 1;

@@ -1,6 +1,6 @@
-import { searchRecipes } from '@vores-kok/database';
-import { can } from '@vores-kok/domain';
-import { ArrowRight, BookOpen, Heart, Plus, Search, Star } from 'lucide-react';
+import { listPantryItems, listPlanEntries, searchRecipes } from '@vores-kok/database';
+import { can, expiryState, formatExpiry, HOME_TIME_ZONE, MEAL_SLOT_LABELS, todayKey } from '@vores-kok/domain';
+import { AlarmClock, ArrowRight, BookOpen, CalendarDays, ChefHat, Heart, Plus, Search, Star } from 'lucide-react';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { RecipeGrid } from '@/components/recipe/recipe-card';
@@ -31,11 +31,15 @@ function Shelf({ title, href, icon, children }: { title: string; href: string; i
 
 export default async function HomePage() {
   const { db, household, displayName } = await requireHousehold();
-  const [recent, favorites, family] = await Promise.all([
+  const today = todayKey(new Date(), HOME_TIME_ZONE);
+  const [recent, favorites, family, todays, pantry] = await Promise.all([
     searchRecipes(db, household.id, { sort: 'updated' }, 6),
     searchRecipes(db, household.id, { favorites: true }, 6),
     searchRecipes(db, household.id, { family: true, sort: 'updated' }, 6),
+    listPlanEntries(db, household.id, today, today),
+    listPantryItems(db, household.id),
   ]);
+  const expiring = pantry.filter((p) => ['expired', 'today', 'soon'].includes(expiryState(p.best_before, today))).slice(0, 6);
   const urls = await signedUrls(db, [...recent.items, ...favorites.items, ...family.items].map((r) => r.cover_path));
   const first = displayName.split(' ')[0];
 
@@ -53,6 +57,32 @@ export default async function HomePage() {
           <button type="submit" className="min-h-11 rounded-full bg-ink px-5 font-medium text-cream hover:bg-ink/90">Søg</button>
         </form>
       </section>
+
+      {todays.length || expiring.length ? (
+        <div className="mt-8 grid gap-4 md:grid-cols-2">
+          {todays.length ? (
+            <section className="rounded-[var(--radius-card)] border border-line bg-paper p-5" aria-labelledby="today-h">
+              <h2 id="today-h" className="flex items-center gap-2 text-xl font-semibold"><CalendarDays className="size-5 text-brand" aria-hidden /> I dag</h2>
+              <ul className="mt-3 flex flex-col gap-2">
+                {todays.map((e) => (
+                  <li key={e.id} className="flex items-center justify-between gap-3">
+                    <span><span className="text-sm text-ink-muted">{MEAL_SLOT_LABELS[e.slot]} · </span>{e.recipe_id ? <Link href={`/recipes/${e.recipe_id}`} className="font-medium hover:underline">{e.recipe_title ?? e.title}</Link> : <span className="font-medium">{e.title}</span>}</span>
+                    {e.recipe_id ? <Link href={`/cook/${e.recipe_id}${e.servings ? `?servings=${e.servings}` : ''}`} className="inline-flex min-h-10 items-center gap-1 rounded-full bg-brand-soft px-3 text-sm font-medium text-brand-dark"><ChefHat className="size-4" aria-hidden /> Kog</Link> : null}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+          {expiring.length ? (
+            <section className="rounded-[var(--radius-card)] border border-honey/40 bg-honey-soft/50 p-5" aria-labelledby="exp-h">
+              <h2 id="exp-h" className="flex items-center gap-2 text-xl font-semibold"><AlarmClock className="size-5 text-honey" aria-hidden /> Skal bruges snart</h2>
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {expiring.map((p) => <li key={p.id}><Link href={`/recipes?ingredients=${encodeURIComponent(p.name)}`} className="inline-flex min-h-9 items-center rounded-full bg-paper px-3 text-sm"><span className="font-medium">{p.name}</span>&nbsp;· {formatExpiry(p.best_before, today)}</Link></li>)}
+              </ul>
+            </section>
+          ) : null}
+        </div>
+      ) : null}
 
       {recent.total === 0 ? (
         <div className="mt-10">

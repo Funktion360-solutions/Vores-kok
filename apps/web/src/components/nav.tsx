@@ -1,14 +1,21 @@
 'use client';
 import clsx from 'clsx';
-import { BookOpen, Home, MoreHorizontal, Plus, Users } from 'lucide-react';
+import { BookOpen, CalendarDays, Home, MoreHorizontal, Plus, Refrigerator, ShoppingBasket, Users } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+// Primary navigation (spec): Hjem · Opskrifter · Madplan · Indkøb · Mere.
 const ITEMS = [
   { href: '/', label: 'Hjem', icon: Home, match: (p: string) => p === '/' },
   { href: '/recipes', label: 'Opskrifter', icon: BookOpen, match: (p: string) => p.startsWith('/recipes') },
+  { href: '/plan', label: 'Madplan', icon: CalendarDays, match: (p: string) => p.startsWith('/plan') },
+  { href: '/shopping', label: 'Indkøb', icon: ShoppingBasket, match: (p: string) => p.startsWith('/shopping') },
+  { href: '/more', label: 'Mere', icon: MoreHorizontal, match: (p: string) => ['/more', '/settings', '/kitchen', '/family'].some((x) => p.startsWith(x)) },
+];
+// Extra destinations shown directly in the desktop/iPad sidebar.
+const SIDE_EXTRA = [
+  { href: '/kitchen', label: 'Mit køkken', icon: Refrigerator, match: (p: string) => p.startsWith('/kitchen') },
   { href: '/family', label: 'Familie', icon: Users, match: (p: string) => p.startsWith('/family') },
-  { href: '/more', label: 'Mere', icon: MoreHorizontal, match: (p: string) => p.startsWith('/more') || p.startsWith('/settings') },
 ];
 
 export function SideNav({ canCreate }: { canCreate: boolean }) {
@@ -20,7 +27,7 @@ export function SideNav({ canCreate }: { canCreate: boolean }) {
           <Plus className="size-5" aria-hidden /> Ny opskrift
         </Link>
       ) : null}
-      {ITEMS.map(({ href, label, icon: Icon, match }) => {
+      {[...ITEMS.slice(0, 4), ...SIDE_EXTRA, { ...ITEMS[4]!, match: (p: string) => p.startsWith('/more') || p.startsWith('/settings') }].map(({ href, label, icon: Icon, match }) => {
         const active = match(path);
         return (
           <Link key={href} href={href} aria-current={active ? 'page' : undefined}
@@ -38,7 +45,7 @@ export function TabBar() {
   const path = usePathname();
   return (
     <nav aria-label="Hovedmenu" className="no-print fixed inset-x-0 bottom-0 z-30 border-t border-line bg-paper/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
-      <ul className="mx-auto grid max-w-lg grid-cols-4">
+      <ul className="mx-auto grid max-w-xl grid-cols-5">
         {ITEMS.map(({ href, label, icon: Icon, match }) => {
           const active = match(path);
           return (

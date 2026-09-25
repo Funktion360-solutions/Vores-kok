@@ -1,4 +1,4 @@
-import { CalendarDays, ChefHat, Download, LogOut, MessageCircle, Refrigerator, Settings, ShoppingBasket, Users } from 'lucide-react';
+import { CalendarDays, Download, LogOut, MessageCircle, Refrigerator, Settings, ShoppingBasket, Users } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
@@ -25,15 +25,14 @@ export default function MorePage() {
     <div className="mx-auto max-w-4xl">
       <PageHeader title="Mere" />
       <ul className="grid gap-4 sm:grid-cols-2">
+        <Item href="/kitchen" icon={<Refrigerator className="size-6" />} title="Mit køkken" text="Køleskab, fryser og skabe — og hvad der skal bruges snart." />
         <Item href="/family" icon={<Users className="size-6" />} title="Familie" text="Personerne og historierne bag opskrifterne." />
+        <Item href="/plan" icon={<CalendarDays className="size-6" />} title="Madplan" text="Ugens måltider for hele husstanden." />
+        <Item href="/shopping" icon={<ShoppingBasket className="size-6" />} title="Indkøb" text="Fælles lister, der opdateres live." />
         <Item href="/settings" icon={<Settings className="size-6" />} title="Indstillinger" text="Profil, husstand, medlemmer, invitationer og kategorier." />
       </ul>
       <h2 className="mb-3 mt-10 text-xl font-semibold">På vej</h2>
       <ul className="grid gap-4 sm:grid-cols-2">
-        <Item icon={<CalendarDays className="size-6" />} title="Madplan" text="Planlæg ugens måltider sammen." soon="Fase 2" />
-        <Item icon={<ShoppingBasket className="size-6" />} title="Indkøb" text="Fælles indkøbslister, der opdateres live." soon="Fase 2" />
-        <Item icon={<Refrigerator className="size-6" />} title="Mit køkken" text="Hvad har vi i køleskab, fryser og skabe?" soon="Fase 2" />
-        <Item icon={<ChefHat className="size-6" />} title="Kogetilstand" text="Trin for trin med store knapper og timere." soon="Fase 2" />
         <Item icon={<Download className="size-6" />} title="Importér" text="Fra hjemmesider, fotos, PDF og håndskrevne kort." soon="Fase 3" />
         <Item icon={<MessageCircle className="size-6" />} title="Assistent" text="“Hvad kan vi lave?” og erstatninger." soon="Fase 3" />
       </ul>

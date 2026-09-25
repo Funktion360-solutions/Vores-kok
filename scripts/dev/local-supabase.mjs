@@ -27,6 +27,8 @@ const SECRET = new TextEncoder().encode(process.env.JWT_SECRET ?? 'local-dev-sec
 const STORAGE_DIR = process.env.STORAGE_DIR ?? join(ROOT, '.dev/storage');
 const ACCESS_TTL = 3600;
 
+// Return DATE columns as 'YYYY-MM-DD' strings, like PostgREST does.
+pg.types.setTypeParser(1082, (v) => v);
 const pool = new pg.Pool({ connectionString: DATABASE_URL, max: 10 });
 const refreshTokens = new Map(); // token -> userId
 

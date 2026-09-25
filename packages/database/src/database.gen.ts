@@ -222,6 +222,181 @@ export type Database = {
           },
         ];
       };
+      meal_plan_entries: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          household_id: string;
+          id: string;
+          notes: string | null;
+          plan_date: string;
+          position: number;
+          recipe_id: string | null;
+          servings: number | null;
+          slot: Database['public']['Enums']['meal_slot'];
+          title: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          household_id: string;
+          id?: string;
+          notes?: string | null;
+          plan_date: string;
+          position?: number;
+          recipe_id?: string | null;
+          servings?: number | null;
+          slot?: Database['public']['Enums']['meal_slot'];
+          title?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          household_id?: string;
+          id?: string;
+          notes?: string | null;
+          plan_date?: string;
+          position?: number;
+          recipe_id?: string | null;
+          servings?: number | null;
+          slot?: Database['public']['Enums']['meal_slot'];
+          title?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'meal_plan_entries_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'meal_plan_entries_household_id_fkey';
+            columns: ['household_id'];
+            isOneToOne: false;
+            referencedRelation: 'households';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'meal_plan_entries_recipe_id_household_id_fkey';
+            columns: ['recipe_id', 'household_id'];
+            isOneToOne: false;
+            referencedRelation: 'recipes';
+            referencedColumns: ['id', 'household_id'];
+          },
+        ];
+      };
+      pantry_items: {
+        Row: {
+          best_before: string | null;
+          created_at: string;
+          created_by: string | null;
+          household_id: string;
+          id: string;
+          location_id: string;
+          name: string;
+          name_normalized: string | null;
+          notes: string | null;
+          opened_on: string | null;
+          quantity: number | null;
+          unit: string | null;
+          unit_code: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          best_before?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          household_id: string;
+          id?: string;
+          location_id: string;
+          name: string;
+          name_normalized?: never;
+          notes?: string | null;
+          opened_on?: string | null;
+          quantity?: number | null;
+          unit?: string | null;
+          unit_code?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          best_before?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          household_id?: string;
+          id?: string;
+          location_id?: string;
+          name?: string;
+          name_normalized?: never;
+          notes?: string | null;
+          opened_on?: string | null;
+          quantity?: number | null;
+          unit?: string | null;
+          unit_code?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'pantry_items_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'pantry_items_location_id_household_id_fkey';
+            columns: ['location_id', 'household_id'];
+            isOneToOne: false;
+            referencedRelation: 'pantry_locations';
+            referencedColumns: ['id', 'household_id'];
+          },
+          {
+            foreignKeyName: 'pantry_items_unit_code_fkey';
+            columns: ['unit_code'];
+            isOneToOne: false;
+            referencedRelation: 'units';
+            referencedColumns: ['code'];
+          },
+        ];
+      };
+      pantry_locations: {
+        Row: {
+          created_at: string;
+          household_id: string;
+          id: string;
+          kind: Database['public']['Enums']['pantry_location_kind'];
+          name: string;
+          position: number;
+        };
+        Insert: {
+          created_at?: string;
+          household_id: string;
+          id?: string;
+          kind?: Database['public']['Enums']['pantry_location_kind'];
+          name: string;
+          position?: number;
+        };
+        Update: {
+          created_at?: string;
+          household_id?: string;
+          id?: string;
+          kind?: Database['public']['Enums']['pantry_location_kind'];
+          name?: string;
+          position?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'pantry_locations_household_id_fkey';
+            columns: ['household_id'];
+            isOneToOne: false;
+            referencedRelation: 'households';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       people: {
         Row: {
           bio: string | null;
@@ -832,6 +1007,143 @@ export type Database = {
           },
         ];
       };
+      shopping_list_items: {
+        Row: {
+          category: string;
+          checked: boolean;
+          checked_at: string | null;
+          checked_by: string | null;
+          created_at: string;
+          created_by: string | null;
+          household_id: string;
+          id: string;
+          list_id: string;
+          name: string;
+          name_normalized: string | null;
+          note: string | null;
+          position: number;
+          quantity: number | null;
+          source_recipe_ids: string[];
+          unit: string | null;
+          unit_code: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          category?: string;
+          checked?: boolean;
+          checked_at?: string | null;
+          checked_by?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          household_id: string;
+          id?: string;
+          list_id: string;
+          name: string;
+          name_normalized?: never;
+          note?: string | null;
+          position?: number;
+          quantity?: number | null;
+          source_recipe_ids?: string[];
+          unit?: string | null;
+          unit_code?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          category?: string;
+          checked?: boolean;
+          checked_at?: string | null;
+          checked_by?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          household_id?: string;
+          id?: string;
+          list_id?: string;
+          name?: string;
+          name_normalized?: never;
+          note?: string | null;
+          position?: number;
+          quantity?: number | null;
+          source_recipe_ids?: string[];
+          unit?: string | null;
+          unit_code?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'shopping_list_items_checked_by_fkey';
+            columns: ['checked_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'shopping_list_items_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'shopping_list_items_list_id_household_id_fkey';
+            columns: ['list_id', 'household_id'];
+            isOneToOne: false;
+            referencedRelation: 'shopping_lists';
+            referencedColumns: ['id', 'household_id'];
+          },
+          {
+            foreignKeyName: 'shopping_list_items_unit_code_fkey';
+            columns: ['unit_code'];
+            isOneToOne: false;
+            referencedRelation: 'units';
+            referencedColumns: ['code'];
+          },
+        ];
+      };
+      shopping_lists: {
+        Row: {
+          archived_at: string | null;
+          created_at: string;
+          created_by: string | null;
+          household_id: string;
+          id: string;
+          name: string;
+          updated_at: string;
+        };
+        Insert: {
+          archived_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          household_id: string;
+          id?: string;
+          name: string;
+          updated_at?: string;
+        };
+        Update: {
+          archived_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          household_id?: string;
+          id?: string;
+          name?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'shopping_lists_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'shopping_lists_household_id_fkey';
+            columns: ['household_id'];
+            isOneToOne: false;
+            referencedRelation: 'households';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       tags: {
         Row: {
           created_at: string;
@@ -996,11 +1308,18 @@ export type Database = {
         Args: { p_archived: boolean; p_recipe_id: string };
         Returns: undefined;
       };
+      set_shopping_item_checked: {
+        Args: { p_checked: boolean; p_item_id: string };
+        Returns: undefined;
+      };
+      upsert_shopping_items: { Args: { p_items: Json; p_list_id: string }; Returns: number };
     };
     Enums: {
       household_role: 'owner' | 'admin' | 'member' | 'viewer';
+      meal_slot: 'breakfast' | 'lunch' | 'dinner' | 'snack';
       media_kind: 'photo' | 'original_scan' | 'historical_photo' | 'document';
       note_visibility: 'private' | 'household';
+      pantry_location_kind: 'fridge' | 'freezer' | 'cupboard' | 'pantry' | 'spices' | 'other';
       recipe_difficulty: 'easy' | 'medium' | 'hard';
       recipe_source_type:
         'manual' | 'legacy_import' | 'url' | 'text' | 'image' | 'pdf' | 'scan' | 'other';
@@ -1117,8 +1436,10 @@ export const Constants = {
   public: {
     Enums: {
       household_role: ['owner', 'admin', 'member', 'viewer'],
+      meal_slot: ['breakfast', 'lunch', 'dinner', 'snack'],
       media_kind: ['photo', 'original_scan', 'historical_photo', 'document'],
       note_visibility: ['private', 'household'],
+      pantry_location_kind: ['fridge', 'freezer', 'cupboard', 'pantry', 'spices', 'other'],
       recipe_difficulty: ['easy', 'medium', 'hard'],
       recipe_source_type: [
         'manual',

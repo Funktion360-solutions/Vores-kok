@@ -1,4 +1,4 @@
-import { getRecipe, listPeople } from '@vores-kok/database';
+import { getRecipe, listPeople, listShoppingLists } from '@vores-kok/database';
 import {
   can,
   DIFFICULTY_LABELS,
@@ -18,6 +18,8 @@ import { notFound } from 'next/navigation';
 import { CategoryIcon } from '@/components/recipe/category-icon';
 import { FavoriteButton } from '@/components/recipe/favorite-button';
 import { IngredientsPanel } from '@/components/recipe/ingredients-panel';
+import { KitchenActions } from '@/components/recipe/kitchen-actions';
+import { ServingsProvider } from '@/components/recipe/servings-context';
 import { MediaSection } from '@/components/recipe/media-section';
 import { NotesSection } from '@/components/recipe/notes-section';
 import { RecipeActions } from '@/components/recipe/recipe-actions';
@@ -36,8 +38,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return { title: r?.title ?? 'Opskrift' };
 }
 
-export default async function RecipePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function RecipePage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ servings?: string }> }) {
   const { id } = await params;
+  const wanted = Number((await searchParams).servings);
   if (!UUID.test(id)) notFound();
   const { db, household, user } = await requireHousehold();
   const recipe = await getRecipe(db, id);
@@ -46,7 +49,8 @@ export default async function RecipePage({ params }: { params: Promise<{ id: str
   // A recipe may belong to another of the user's households; use its role there.
   const role = recipe.household_id === household.id ? household.role : null;
   const canEdit = can(role, 'recipe.edit');
-  const people = canEdit ? await listPeople(db, recipe.household_id) : [];
+  const [people, lists] = await Promise.all([canEdit ? listPeople(db, recipe.household_id) : Promise.resolve([]), canEdit ? listShoppingLists(db, recipe.household_id) : Promise.resolve([])]);
+  const initialServings = Number.isInteger(wanted) && wanted > 0 && wanted <= 1000 ? wanted : recipe.servings;
   const urls = await signedUrls(db, recipe.media.map((m) => m.storage_path));
   const cover = recipe.media.find((m) => m.is_cover && m.mime_type.startsWith('image/')) ?? recipe.media.find((m) => m.kind === 'photo' && m.mime_type.startsWith('image/'));
   const photos = recipe.media.filter((m) => m.kind === 'photo' || m.kind === 'document');
@@ -55,6 +59,7 @@ export default async function RecipePage({ params }: { params: Promise<{ id: str
   const origin = recipe.origin_person?.name ?? recipe.origin_text;
 
   return (
+    <ServingsProvider initial={initialServings}>
     <article className="flex flex-col gap-10">
       {/* ── Hero ── */}
       <header className="grid gap-6 lg:grid-cols-[1.1fr_1fr] lg:items-center">
@@ -85,7 +90,11 @@ export default async function RecipePage({ params }: { params: Promise<{ id: str
               {recipe.tags.map((t) => <Badge key={t.id}>#{t.name}</Badge>)}
             </div>
           ) : null}
-          <div className="no-print mt-6 flex flex-wrap gap-2">
+          <div className="no-print mt-6">
+            <KitchenActions recipeId={recipe.id} title={recipe.title} householdId={recipe.household_id} canEdit={canEdit}
+              lists={lists.map((l) => ({ id: l.id, name: l.name }))} hasSteps={recipe.steps.length > 0} />
+          </div>
+          <div className="no-print mt-3 flex flex-wrap gap-2">
             {role ? <FavoriteButton recipeId={recipe.id} initial={recipe.is_favorite} /> : null}
             <RecipeActions recipeId={recipe.id} title={recipe.title} canEdit={canEdit} canDelete={can(role, 'recipe.delete')} archived={!!recipe.archived_at} />
           </div>
@@ -163,5 +172,6 @@ export default async function RecipePage({ params }: { params: Promise<{ id: str
         </section>
       </div>
     </article>
+    </ServingsProvider>
   );
 }

@@ -3,3 +3,4 @@ export { Constants } from './database.gen';
 export * from './client';
 export * from './queries';
 export * from './local';
+export * from './kitchen';
