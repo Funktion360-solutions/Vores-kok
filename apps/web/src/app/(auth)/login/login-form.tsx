@@ -6,8 +6,10 @@ import { useState, type FormEvent } from 'react';
 import { Alert, Button, Field, Input, Spinner } from '@/components/ui';
 import { safeNext } from '@/lib/safe-redirect';
 import { getBrowserClient } from '@/lib/supabase/client';
+import { useHydrated } from '@/lib/use-hydrated';
 
 export function LoginForm() {
+  const hydrated = useHydrated();
   const router = useRouter();
   const params = useSearchParams();
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -30,7 +32,7 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-4" noValidate>
+    <form method="post" onSubmit={onSubmit} className="mt-8 flex flex-col gap-4" noValidate>
       {errors._ ? <Alert>{errors._}</Alert> : null}
       <Field label="E-mail" htmlFor="email" error={errors.email}>
         <Input id="email" name="email" type="email" autoComplete="email" required aria-invalid={!!errors.email} />
@@ -38,7 +40,7 @@ export function LoginForm() {
       <Field label="Adgangskode" htmlFor="password" error={errors.password}>
         <Input id="password" name="password" type="password" autoComplete="current-password" required aria-invalid={!!errors.password} />
       </Field>
-      <Button type="submit" size="lg" disabled={pending} className="mt-2">{pending ? <Spinner /> : null} Log ind</Button>
+      <Button type="submit" size="lg" disabled={pending || !hydrated} className="mt-2">{pending ? <Spinner /> : null} Log ind</Button>
       <div className="flex justify-between text-sm">
         <Link href="/auth/reset" className="text-ink-soft underline-offset-4 hover:underline">Glemt adgangskode?</Link>
         <Link href={`/signup${params.get('next') ? `?next=${encodeURIComponent(params.get('next')!)}` : ''}`} className="font-medium text-brand underline-offset-4 hover:underline">Opret konto</Link>

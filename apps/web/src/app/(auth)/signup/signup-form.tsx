@@ -7,8 +7,10 @@ import { Alert, Button, Field, Input, Spinner } from '@/components/ui';
 import { env } from '@/lib/env';
 import { safeNext } from '@/lib/safe-redirect';
 import { getBrowserClient } from '@/lib/supabase/client';
+import { useHydrated } from '@/lib/use-hydrated';
 
 export function SignupForm() {
+  const hydrated = useHydrated();
   const router = useRouter();
   const params = useSearchParams();
   const next = safeNext(params.get('next'), '/onboarding');
@@ -45,7 +47,7 @@ export function SignupForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-4" noValidate>
+    <form method="post" onSubmit={onSubmit} className="mt-8 flex flex-col gap-4" noValidate>
       {errors._ ? <Alert>{errors._}</Alert> : null}
       <Field label="Dit navn" htmlFor="displayName" error={errors.displayName} hint="Vises for din familie, fx “Mor” eller “Aksel”.">
         <Input id="displayName" name="displayName" autoComplete="name" required aria-invalid={!!errors.displayName} />
@@ -56,7 +58,7 @@ export function SignupForm() {
       <Field label="Adgangskode" htmlFor="password" error={errors.password} hint="Mindst 10 tegn.">
         <Input id="password" name="password" type="password" autoComplete="new-password" required aria-invalid={!!errors.password} />
       </Field>
-      <Button type="submit" size="lg" disabled={pending} className="mt-2">{pending ? <Spinner /> : null} Opret konto</Button>
+      <Button type="submit" size="lg" disabled={pending || !hydrated} className="mt-2">{pending ? <Spinner /> : null} Opret konto</Button>
       <p className="text-center text-sm text-ink-soft">Har du allerede en konto? <Link href="/login" className="font-medium text-brand hover:underline">Log ind</Link></p>
     </form>
   );

@@ -1,0 +1,40 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Typecheck, lint, unit tests
+        run: pnpm turbo run typecheck lint test
+      - name: Database migrations + RLS/storage policy tests
+        run: pnpm db:test
+      - name: Legacy migration rehearsal (fixture → import → verify)
+        run: pnpm migration:rehearse
+      - name: Web production build
+        run: pnpm --filter @vores-kok/web build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder
+      - name: iOS bundle (Metro/Hermes)
+        run: pnpm --filter @vores-kok/mobile export:ios
+      - run: pnpm exec playwright install --with-deps chromium
+        working-directory: apps/web
+      - name: Web E2E
+        run: pnpm e2e:web
+        env: { PW_CHROMIUM: "" }
+      - name: Mobile (web build) E2E
+        run: pnpm e2e:mobile
+        env: { PW_CHROMIUM: "" }

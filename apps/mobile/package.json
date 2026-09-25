@@ -9,8 +9,8 @@
     "web": "expo start --web",
     "export:ios": "expo export --platform ios --output-dir dist-ios",
     "export:web": "expo export --platform web --output-dir dist-web",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint app src",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p e2e",
+    "lint": "eslint app src test e2e",
     "test": "vitest run"
   },
   "dependencies": {
@@ -52,6 +52,7 @@
     "typescript": "6.0.3",
     "vitest": "5.0.2",
     "eslint-plugin-react-hooks": "7.1.1",
-    "@playwright/test": "1.63.0"
+    "@playwright/test": "1.63.0",
+    "@types/node": "24.13.6"
   }
 }

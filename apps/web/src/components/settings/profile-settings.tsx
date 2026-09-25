@@ -36,11 +36,11 @@ export function ProfileSettings({ userId, displayName, email }: { userId: string
       <h2 className="text-xl font-semibold">Din profil</h2>
       <p className="mt-1 text-sm text-ink-muted">{email}</p>
       {msg ? <div className="mt-4"><Alert tone={msg.tone}>{msg.text}</Alert></div> : null}
-      <form onSubmit={saveName} className="mt-4 flex items-end gap-2">
+      <form method="post" onSubmit={saveName} className="mt-4 flex items-end gap-2">
         <Field label="Visningsnavn" htmlFor="display_name" className="flex-1"><Input id="display_name" name="display_name" defaultValue={displayName} maxLength={80} /></Field>
         <Button type="submit" variant="secondary" disabled={pending}>Gem</Button>
       </form>
-      <form id="password" onSubmit={savePassword} className="mt-4 flex items-end gap-2">
+      <form method="post" id="password" onSubmit={savePassword} className="mt-4 flex items-end gap-2">
         <Field label="Ny adgangskode" htmlFor="password-new" className="flex-1"><Input id="password-new" name="password" type="password" autoComplete="new-password" /></Field>
         <Button type="submit" variant="secondary" disabled={pending}>Skift</Button>
       </form>

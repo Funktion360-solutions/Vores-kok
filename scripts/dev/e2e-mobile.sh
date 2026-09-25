@@ -12,4 +12,4 @@ EXPO_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 EXPO_PUBLIC_SUPABASE_ANON_KEY="$
 node e2e/serve.mjs "$ROOT/.dev/dist-web" 8081 & SERVER=$!
 trap 'kill $SERVER 2>/dev/null; bash "$ROOT/scripts/dev/api.sh" stop' EXIT
 cd e2e
-VK_KEYS="$ROOT/.dev/keys.json" PW_CHROMIUM=${PW_CHROMIUM:-/opt/pw-browsers/chromium} npx playwright test -c playwright.config.ts "$@"
+VK_KEYS="$ROOT/.dev/keys.json" PW_CHROMIUM=${PW_CHROMIUM-/opt/pw-browsers/chromium} npx playwright test -c playwright.config.ts "$@"
