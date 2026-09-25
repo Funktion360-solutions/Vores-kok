@@ -151,7 +151,7 @@ describe('units', () => {
   });
 
   it('matches the SQL seed in the migration', () => {
-    const sql = readFileSync(fileURLToPath(new URL('../../../supabase/migrations/20260925000200_recipes.sql', import.meta.url)), 'utf8');
+    const sql = readFileSync(fileURLToPath(new URL('../../../supabase/migrations/20260925210137_recipes.sql', import.meta.url)), 'utf8');
     const rows = [...sql.matchAll(/\(\s*'([^']+)',\s*'([^']+)',\s*'([^']+)',\s*'(mass|volume|count|other)',\s*([\d.]+|null),/g)];
     expect(rows.length).toBe(UNITS.length);
     for (const [, code, label, plural, kind, toBase] of rows) {

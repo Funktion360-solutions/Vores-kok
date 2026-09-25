@@ -1,6 +1,6 @@
 /**
  * Media rules shared by web and mobile. Storage policies in
- * supabase/migrations/20260925000300_storage.sql enforce the same path shape.
+ * supabase/migrations/20260925210147_storage.sql enforce the same path shape.
  */
 export const MEDIA_BUCKET = 'household-media';
 export const MAX_MEDIA_BYTES = 25 * 1024 * 1024;

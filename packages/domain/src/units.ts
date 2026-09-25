@@ -1,6 +1,6 @@
 /**
  * Unit reference data. MUST stay in sync with the `public.units` seed in
- * supabase/migrations/20260925000200_recipes.sql — a unit test enforces this.
+ * supabase/migrations/20260925210137_recipes.sql — a unit test enforces this.
  */
 export type UnitKind = 'mass' | 'volume' | 'count' | 'other';
 
