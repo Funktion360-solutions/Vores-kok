@@ -1,0 +1,23 @@
+{
+  "name": "vores-kok",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "db:test": "bash scripts/dev/db-test.sh",
+    "db:types": "bash scripts/dev/gen-types.sh",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "prettier": "3.9.9",
+    "turbo": "2.11.4",
+    "typescript": "6.0.3",
+    "supabase": "2.118.0"
+  }
+}

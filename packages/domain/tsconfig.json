@@ -1,0 +1,5 @@
+{
+  "extends": "@vores-kok/config/tsconfig.library.json",
+  "compilerOptions": { "types": ["node"] },
+  "include": ["src", "test"]
+}
