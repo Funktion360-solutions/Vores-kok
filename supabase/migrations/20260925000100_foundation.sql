@@ -462,3 +462,20 @@ as $$
 $$;
 revoke all on function public.my_households() from public, anon;
 grant execute on function public.my_households() to authenticated;
+
+-- Members of a household with display names (invoker: RLS applies to both tables).
+create or replace function public.list_household_members(p_household_id uuid)
+returns table (user_id uuid, display_name text, role public.household_role, joined_at timestamptz, is_me boolean)
+language sql
+stable
+security invoker
+set search_path = ''
+as $$
+  select m.user_id, p.display_name, m.role, m.joined_at, m.user_id = (select auth.uid())
+  from public.household_members m
+  join public.profiles p on p.id = m.user_id
+  where m.household_id = p_household_id
+  order by private.role_rank(m.role) desc, lower(p.display_name)
+$$;
+revoke all on function public.list_household_members(uuid) from public, anon;
+grant execute on function public.list_household_members(uuid) to authenticated;

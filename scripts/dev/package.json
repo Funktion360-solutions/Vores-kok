@@ -1,0 +1,15 @@
+{
+  "name": "@vores-kok/dev",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local development tooling: throwaway Postgres + Supabase API emulator for tests. Not deployed.",
+  "scripts": {
+    "start": "node local-supabase.mjs",
+    "keys": "node local-supabase.mjs --print-keys"
+  },
+  "dependencies": {
+    "jose": "6.2.12",
+    "pg": "8.23.0"
+  }
+}
