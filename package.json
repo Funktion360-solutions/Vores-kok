@@ -12,7 +12,10 @@
     "test": "turbo run test",
     "db:test": "bash scripts/dev/db-test.sh",
     "db:types": "bash scripts/dev/gen-types.sh",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "e2e:web": "bash scripts/dev/e2e.sh",
+    "e2e:mobile": "bash scripts/dev/e2e-mobile.sh",
+    "migration:rehearse": "bash scripts/migration/test/integration.sh"
   },
   "devDependencies": {
     "prettier": "3.9.9",

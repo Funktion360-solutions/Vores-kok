@@ -22,3 +22,6 @@ supabase/.branches/
 !scripts/migration/fixtures/*.db
 .DS_Store
 .next-e2e/
+apps/mobile/test-results/
+apps/mobile/e2e/test-results/
+migration-report*.json
