@@ -1,0 +1,31 @@
+{
+  "name": "@vores-kok/migration",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "One-time import of Mors Opskrifter (SQLite + App_files) into Vores Kok (Supabase).",
+  "scripts": {
+    "fixture": "tsx src/fixture.ts",
+    "import": "tsx src/import.ts",
+    "verify": "tsx src/verify.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src test",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.117.2",
+    "@vores-kok/domain": "workspace:*",
+    "better-sqlite3": "12.11.1",
+    "pg": "8.23.0",
+    "tsx": "4.23.15"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "7.6.13",
+    "@types/node": "24.13.6",
+    "@types/pg": "8.23.1",
+    "@vores-kok/config": "workspace:*",
+    "eslint": "9.39.5",
+    "typescript": "6.0.3",
+    "vitest": "5.0.2"
+  }
+}
