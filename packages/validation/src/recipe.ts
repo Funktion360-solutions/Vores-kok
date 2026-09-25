@@ -199,8 +199,13 @@ export const recipeDocumentSchema = z.object({
 });
 export type RecipeDocument = z.infer<typeof recipeDocumentSchema>;
 
-/** Converts a stored document back into an editable input. */
-export function documentToInput(doc: RecipeDocument): RecipeInput {
+/** A blank, fully-typed recipe for "new recipe" forms. */
+export function emptyRecipe(householdId: string): RecipePayload {
+  return { ...recipeInputSchema.parse({ household_id: householdId, title: 'x' }), title: '' };
+}
+
+/** Converts a stored document back into an editable, fully-typed payload. */
+export function documentToInput(doc: RecipeDocument): RecipePayload {
   return {
     id: doc.id,
     household_id: doc.household_id,

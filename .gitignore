@@ -21,3 +21,4 @@ supabase/.branches/
 *.db
 !scripts/migration/fixtures/*.db
 .DS_Store
+.next-e2e/

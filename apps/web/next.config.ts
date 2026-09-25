@@ -1,6 +1,8 @@
 import type { NextConfig } from 'next';
 
 const config: NextConfig = {
+  // Separate build output for E2E runs against the local emulator (different public env).
+  distDir: process.env.NEXT_DIST_DIR ?? '.next',
   // Shared workspace packages ship TypeScript source.
   transpilePackages: ['@vores-kok/domain', '@vores-kok/validation', '@vores-kok/database', '@vores-kok/ui'],
   poweredByHeader: false,

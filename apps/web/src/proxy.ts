@@ -19,7 +19,7 @@ function buildCsp(nonce: string): string {
     `base-uri 'self'`,
     `form-action 'self'`,
     `frame-ancestors 'none'`,
-    isDev ? '' : 'upgrade-insecure-requests',
+    isDev || supabase.startsWith('http://') ? '' : 'upgrade-insecure-requests',
   ].filter(Boolean).join('; ');
 }
 

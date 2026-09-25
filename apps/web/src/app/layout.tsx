@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { headers } from 'next/headers';
 import type { ReactNode } from 'react';
 import './globals.css';
 
@@ -15,7 +16,10 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  // Reading request headers makes every page dynamic, which is required for the
+  // per-request CSP nonce set in proxy.ts (Next applies it to its own scripts).
+  await headers();
   return (
     <html lang="da">
       <body className="antialiased">{children}</body>
