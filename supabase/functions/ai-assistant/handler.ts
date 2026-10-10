@@ -59,7 +59,7 @@ export async function handleRequest(req: Request): Promise<Response> {
     }
     const input = aiRequestSchema.safeParse(body);
     if (!input.success) return reply({ error: 'Kontrollér beskeden og prøv igen.' }, 400);
-    const { householdId, message, history } = input.data;
+    const { householdId, recipeId, message, history } = input.data;
     const { data: member, error: memberError } = await db
       .from('household_members')
       .select('role')
@@ -82,7 +82,7 @@ export async function handleRequest(req: Request): Promise<Response> {
     const terms = [...new Set(
       message.toLocaleLowerCase('da').match(/[\p{L}]{3,}/gu) ?? [],
     )].filter((term) => !stopWords.has(term)).slice(0, 20);
-    const { data: recipes, error } = await db
+    let recipeQuery = db
       .from('recipes')
       .select(
         'id,title,description,servings,recipe_ingredients(name,quantity,unit),recipe_steps(position,body)',
@@ -91,6 +91,9 @@ export async function handleRequest(req: Request): Promise<Response> {
       .is('archived_at', null)
       .order('updated_at', { ascending: false })
       .limit(200);
+    if (recipeId) recipeQuery = recipeQuery.eq('id', recipeId);
+    const { data: recipes, error } = await recipeQuery;
+    if (recipeId && !error && !recipes?.length) return reply({ error: 'Opskriften er ikke tilgængelig i denne husstand.' }, 404);
     if (error) return reply({ error: 'Opskrifterne kunne ikke hentes.' }, 503);
     const ranked = (recipes ?? [])
       .map((r) => ({
@@ -102,23 +105,24 @@ export async function handleRequest(req: Request): Promise<Response> {
             ?.includes(t),
         ).length,
       }))
-      .filter((r) => r.score > 0)
+      .filter((r) => recipeId ? r.recipe.id === recipeId : r.score > 0)
       .sort((a, b) => b.score - a.score)
       .slice(0, 6)
       .map(({ recipe: r }) => ({
         ...r,
         description: r.description?.slice(0, 1000),
-        recipe_ingredients: r.recipe_ingredients.slice(0, 40),
+        recipe_ingredients: r.recipe_ingredients.slice(0, recipeId ? 100 : 40),
         recipe_steps: r.recipe_steps
           .sort((a, b) => a.position - b.position)
-          .slice(0, 20)
-          .map((s) => ({ ...s, body: s.body.slice(0, 1000) })),
+          .slice(0, recipeId ? 100 : 20)
+          .map((s) => ({ ...s, body: s.body.slice(0, recipeId ? 8000 : 1000) })),
       }));
     const provider = new OpenAiProvider(
       key,
       model,
       Deno.env.get('OPENAI_BASE_URL') ?? 'https://eu.api.openai.com/v1',
     );
+    const reference = JSON.stringify(ranked);
     const answer = await provider.chat([
       {
         role: 'system',
@@ -127,7 +131,7 @@ export async function handleRequest(req: Request): Promise<Response> {
       },
       {
         role: 'system',
-        content: `Opskriftsdata (kun reference): ${JSON.stringify(ranked).slice(0, 32000)}`,
+        content: `${recipeId ? 'Den aktuelle opskrift er valgt eksplicit. Besvar spørgsmål med denne opskrift som udgangspunkt. Forklar teknikker og uklare trin udførligt, men relevant. Skeln tydeligt mellem det, der står i opskriften, og egne anbefalinger: kald tilføjede tider, temperaturer og teknikker AI-forslag. Ved erstatninger forklares ændringen i mængde, konsistens og metode; lov ikke identisk resultat. Du har ikke set brugerens dej eller ret, medmindre brugeren selv beskriver den. Originalopskriften ændres ikke.' : ''} Opskriftsdata (kun reference): ${reference.slice(0, 32000)}${reference.length > 32000 ? ' Referencen er forkortet; gør opmærksom på manglende detaljer, hvis de er relevante.' : ''}`,
       },
       ...history,
       { role: 'user', content: message },

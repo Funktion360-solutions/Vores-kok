@@ -22,6 +22,7 @@ import { KitchenActions } from '@/components/recipe/kitchen-actions';
 import { ServingsProvider } from '@/components/recipe/servings-context';
 import { MediaSection } from '@/components/recipe/media-section';
 import { NotesSection } from '@/components/recipe/notes-section';
+import { RecipeHelp } from '@/components/recipe/recipe-help';
 import { RecipeActions } from '@/components/recipe/recipe-actions';
 import { StoriesSection } from '@/components/recipe/stories-section';
 import { Badge, Card } from '@/components/ui';
@@ -141,6 +142,8 @@ export default async function RecipePage({ params, searchParams }: { params: Pro
           ) : null}
         </section>
       </div>
+
+      {role && !recipe.archived_at ? <RecipeHelp key={recipe.id} householdId={recipe.household_id} recipeId={recipe.id} title={recipe.title} /> : null}
 
       {/* ── Family history ── */}
       <div className="grid gap-10 lg:grid-cols-2">

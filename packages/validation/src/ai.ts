@@ -2,6 +2,7 @@ import { z } from 'zod';
 export const aiRequestSchema = z
   .object({
     householdId: z.uuid(),
+    recipeId: z.uuid().optional(),
     message: z.string().trim().min(1).max(2000),
     history: z
       .array(
