@@ -76,10 +76,12 @@ export async function handleRequest(req: Request): Promise<Response> {
     if (quotaError) return reply({ error: 'Assistenten er ikke tilgængelig lige nu.' }, 503);
     if (!reserved) return reply({ error: 'Vent lidt. Der er højst 50 spørgsmål pr. dag.' }, 429);
     // Bound retrieval; RLS and explicit household filters both apply. No stories/media/profile data.
-    const terms = [...new Set(message.toLocaleLowerCase('da').match(/[\p{L}]{3,}/gu) ?? [])].slice(
-      0,
-      20,
+    const stopWords = new Set(
+      'jeg du den det de der en et med og eller til fra kan vil har lave lav opskrift opskrifter helt ny nye anden vores kogebog findes behøver ikke ud din generelle viden'.split(' '),
     );
+    const terms = [...new Set(
+      message.toLocaleLowerCase('da').match(/[\p{L}]{3,}/gu) ?? [],
+    )].filter((term) => !stopWords.has(term)).slice(0, 20);
     const { data: recipes, error } = await db
       .from('recipes')
       .select(
@@ -96,7 +98,8 @@ export async function handleRequest(req: Request): Promise<Response> {
         score: terms.filter((t) =>
           `${r.title} ${r.recipe_ingredients.map((i) => i.name).join(' ')}`
             .toLocaleLowerCase('da')
-            .includes(t),
+            .match(/[\p{L}]{3,}/gu)
+            ?.includes(t),
         ).length,
       }))
       .filter((r) => r.score > 0)
