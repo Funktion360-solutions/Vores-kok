@@ -22,11 +22,13 @@ export function RecipeImport({ householdId, categories, people }: { householdId:
   const [pendingOriginal, setPendingOriginal] = useState<{ id: string; index: number } | null>(null);
   async function extract() {
     setBusy(true); setError('');
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 120000);
     try {
       const form = new FormData(); form.set('householdId', householdId);
       let inputText = text; let sourceUrl = ''; let name = 'Indsat tekst'; let sourceFile: File | null = null;
       if (kind === 'url') {
-        const response = await fetch('/api/import-url', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
+        const response = await fetch('/api/import-url', { signal: controller.signal, method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
         const data = await response.json(); if (!response.ok) throw new Error(data.error ?? 'Hjemmesiden kunne ikke hentes.');
         inputText = data.text; sourceUrl = data.url; name = sourceUrl;
         if (data.recipes) {
@@ -49,7 +51,8 @@ export function RecipeImport({ householdId, categories, people }: { householdId:
         }
       }
       if (!sourceFile) { if (!inputText.trim() || inputText.length > 60000) throw new Error('Indsæt 1–60.000 tegn.'); form.set('text', inputText); }
-      const { data, error: fnError } = await getBrowserClient().functions.invoke('recipe-import', { body: form });
+      const { data, error: fnError } = await getBrowserClient().functions.invoke('recipe-import', { body: form, signal: controller.signal });
+      if (controller.signal.aborted) throw new Error('Importen tog for lang tid. Prøv én opskrift ad gangen, en mindre PDF eller tekst.');
       if (fnError) {
         const context = 'context' in fnError ? fnError.context : null;
         if (context instanceof Response) { const body = await context.json().catch(() => null); throw new Error(body?.error ?? 'Importen fejlede.'); }
@@ -57,8 +60,8 @@ export function RecipeImport({ householdId, categories, people }: { householdId:
       }
       setRecipes(importResultSchema.parse(data).recipes); setSaved({}); setOriginal(sourceFile);
       setSource({ name, url: sourceUrl, text: sourceFile ? '' : inputText, file: !!sourceFile });
-    } catch (e) { setError(e instanceof Error ? e.message : 'Importen fejlede.'); }
-    finally { setBusy(false); }
+    } catch (e) { setError(controller.signal.aborted ? 'Importen tog for lang tid. Prøv én opskrift ad gangen, en mindre PDF eller tekst.' : e instanceof Error ? e.message : 'Importen fejlede.'); }
+    finally { clearTimeout(timer); setBusy(false); }
   }
   async function attachOriginal(id: string, index: number) {
     if (!original) return;
