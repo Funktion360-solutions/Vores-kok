@@ -37,3 +37,6 @@ verify_jwt = true
 
 [functions.recipe-import]
 verify_jwt = true
+
+[functions.ai-meal-plan]
+verify_jwt = true

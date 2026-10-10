@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState, useTransition, type FormEvent } from 'react';
 import { getBrowserClient } from '@/lib/supabase/client';
+import { AiPlanDraft } from './ai-plan-draft';
 import { AddToListDialog } from '../add-to-list-dialog';
 import { Dialog } from '../dialog';
 import { Alert, Button, Field, Input, LinkButton, Select, Textarea } from '../ui';
@@ -91,6 +92,7 @@ export function PlanBoard({ householdId, weekStart, weekLabel, entries, recipes,
   const [adding, setAdding] = useState<string | null>(null);
   const [editing, setEditing] = useState<PlanEntry | null>(null);
   const [shop, setShop] = useState(false);
+  const [aiPlan, setAiPlan] = useState(false);
   const [error, setError] = useState<string>();
   const [, start] = useTransition();
   const days = weekDays(weekStart);
@@ -114,6 +116,7 @@ export function PlanBoard({ householdId, weekStart, weekLabel, entries, recipes,
           <LinkButton variant="secondary" href={`/plan?week=${addDays(weekStart, -7)}`} aria-label="Forrige uge"><ChevronLeft className="size-5" /></LinkButton>
           <LinkButton variant="ghost" href="/plan">I dag</LinkButton>
           <LinkButton variant="secondary" href={`/plan?week=${addDays(weekStart, 7)}`} aria-label="Næste uge"><ChevronRight className="size-5" /></LinkButton>
+          {canEdit ? <Button variant="secondary" onClick={() => setAiPlan(true)}>Foreslå med AI</Button> : null}
           {canEdit ? <Button onClick={() => setShop(true)} disabled={!plannedRecipes}><ShoppingBasket className="size-5" aria-hidden /> Lav indkøbsliste</Button> : null}
         </div>
       </header>
@@ -161,6 +164,9 @@ export function PlanBoard({ householdId, weekStart, weekLabel, entries, recipes,
         })}
       </ol>
 
+      <Dialog open={aiPlan} onClose={() => setAiPlan(false)} title="AI-forslag til madplan" wide>
+        {aiPlan ? <AiPlanDraft householdId={householdId} days={days} entries={entries} recipes={recipes} onDone={() => setAiPlan(false)} /> : null}
+      </Dialog>
       <Dialog open={!!adding} onClose={() => setAdding(null)} title="Tilføj til madplanen">
         {adding ? <EntryForm householdId={householdId} date={adding} recipes={recipes} onDone={() => setAdding(null)} /> : null}
       </Dialog>
