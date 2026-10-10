@@ -1,10 +1,11 @@
 import { z } from 'zod';
+export class IncompleteAiAnswer extends Error {}
 export interface AiProvider {
   chat(messages: { role: string; content: string }[]): Promise<string>;
 }
 const responseSchema = z.object({
   choices: z
-    .array(z.object({ message: z.object({ content: z.string().trim().min(1).max(6000) }) }))
+    .array(z.object({ finish_reason: z.string(), message: z.object({ content: z.string().trim().min(1).max(24000) }) }))
     .min(1),
 });
 export class OpenAiProvider implements AiProvider {
@@ -23,12 +24,14 @@ export class OpenAiProvider implements AiProvider {
       body: JSON.stringify({
         model: this.model,
         messages,
-        max_completion_tokens: 1600,
+        max_completion_tokens: 4500,
         store: false,
       }),
-      signal: AbortSignal.timeout(30000),
+      signal: AbortSignal.timeout(60000),
     });
     if (!response.ok) throw new Error('Provider unavailable');
-    return responseSchema.parse(await response.json()).choices[0].message.content;
+    const choice = responseSchema.parse(await response.json()).choices[0];
+    if (choice.finish_reason !== 'stop') throw new IncompleteAiAnswer('Incomplete response');
+    return choice.message.content;
   }
 }

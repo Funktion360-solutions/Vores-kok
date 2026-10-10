@@ -9,7 +9,7 @@ import type { VKClient } from './client';
 
 /** Shared boundary: errors are translated, and provider output is validated on both clients. */
 export async function askAssistant(db: VKClient, request: AiRequest): Promise<AiReply> {
-  const body = aiRequestSchema.parse(request);
+  const body = aiRequestSchema.parse({ ...request, history: request.history?.map((turn) => ({ ...turn, content: turn.content.slice(0, 6000) })) });
   const { data, error } = await db.functions.invoke('ai-assistant', { body });
   if (error) {
     if (error instanceof FunctionsHttpError) {
@@ -18,6 +18,7 @@ export async function askAssistant(db: VKClient, request: AiRequest): Promise<Ai
         401: 'Log ind igen for at bruge assistenten.',
         403: 'Du har ikke adgang til assistenten for denne husstand.',
         413: 'Beskeden er for lang.',
+        422: 'AI-svaret blev afbrudt. Bed om en kortere, men fuldstændig opskrift og prøv igen.',
         429: 'Vent lidt før næste spørgsmål. Der er højst 50 spørgsmål pr. dag.',
         503: 'Assistenten er ikke klar endnu. Kontrollér serverens opsætning.',
       };

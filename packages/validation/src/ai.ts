@@ -12,7 +12,7 @@ export const aiRequestSchema = z
   })
   .strict();
 export const aiReplySchema = z.object({
-  answer: z.string().trim().min(1).max(6000),
+  answer: z.string().trim().min(1).max(24000),
   recipes: z.array(z.object({ id: z.uuid(), title: z.string().max(200) })).max(6),
 });
 export type AiRequest = z.infer<typeof aiRequestSchema>;

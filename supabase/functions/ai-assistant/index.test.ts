@@ -61,14 +61,14 @@ Deno.test('membership, quota, retrieval and provider failure paths', async () =>
     if (url.includes('/chat/completions')) {
       providerCalls++;
       const body = JSON.parse(String(init?.body));
-      assert(body.store === false && body.max_completion_tokens === 1600);
+      assert(body.store === false && body.max_completion_tokens === 4500);
       assert(
         String(init?.headers && new Headers(init.headers).get('authorization')) ===
           'Bearer provider-test',
       );
       return providerFails
         ? Response.json({ error: 'secret provider detail' }, { status: 500 })
-        : Response.json({ choices: [{ message: { content: 'Kog din pasta.' } }] });
+        : Response.json({ choices: [{ finish_reason: 'stop', message: { content: 'Kog din pasta.' } }] });
     }
     throw new Error(`Unexpected URL ${url}`);
   };
