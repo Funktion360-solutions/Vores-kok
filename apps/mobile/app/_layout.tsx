@@ -37,6 +37,7 @@ function Gate() {
         <Stack.Screen name="recipe/[id]/index" options={{ title: '' }} />
         <Stack.Screen name="recipe/[id]/edit" options={{ title: 'Rediger opskrift', presentation: 'modal' }} />
         <Stack.Screen name="recipe/new" options={{ title: 'Ny opskrift', presentation: 'modal' }} />
+        <Stack.Screen name="assistant" options={{ title: 'Vores Kok AI' }} />
         <Stack.Screen name="invite/[token]" options={{ title: 'Invitation' }} />
       </Stack>
     </>

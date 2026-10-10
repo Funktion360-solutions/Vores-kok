@@ -1208,6 +1208,7 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      reserve_ai_request: { Args: { p_household_id: string }; Returns: boolean };
       accept_household_invite: { Args: { p_token: string }; Returns: string };
       create_household: { Args: { p_name: string }; Returns: string };
       create_household_invite: {

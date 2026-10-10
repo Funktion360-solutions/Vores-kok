@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { createInvite, toDataError, updateMyProfile } from '@vores-kok/database';
 import { can, formatDate, ROLE_LABELS } from '@vores-kok/domain';
 import { useState } from 'react';
@@ -16,6 +17,7 @@ export default function More() {
   return (
     <ScrollView contentContainerStyle={{ padding: 20, gap: 16, maxWidth: 760, width: '100%', alignSelf: 'center' }}>
       <Title size="xxl">Mere</Title>
+      <Button title="Vores Kok AI" icon="chatbubble-outline" onPress={() => router.push('/assistant')} />
       {msg ? <Banner tone={msg.tone}>{msg.text}</Banner> : null}
       <Card style={{ gap: 12 }}>
         <Title size="lg">Husstand</Title>
