@@ -27,3 +27,17 @@ describe('AI recipe review draft', () => {
     expect(draft.steps[0]?.body).toBe('Kog pasta.');
   });
 });
+
+it('handles descriptive headings and keeps paragraphs with their step', () => {
+  const draft = parseAiRecipe('Her kommer opskriften.\n\n**Italienske boller**\n---\n### Ingredienser (ca. 12 boller)\n- 500 g mel\n---\n### Udstyr du skal bruge:\n- En skål\n## Fremgangsmåde\n**1. Bland dejen**\nHæld vandet i.\n\nRør grundigt.\n**2. Bag bollerne**\nBag til gyldne.\n---\nGod fornøjelse!', household);
+  expect(draft.title).toBe('Italienske boller');
+  expect(draft.ingredients).toHaveLength(1);
+  expect(draft.steps).toHaveLength(2);
+  expect(draft.steps[0]?.body).toContain('Rør grundigt.');
+  expect(draft.steps[1]?.body).not.toContain('God fornøjelse');
+});
+it('keeps substeps and readiness signs inside numbered sections', () => {
+  const draft = parseAiRecipe('**Boller**\nIngredienser:\n- 500 g mel\n### Trin 1: Bland\n1. Hæld vand i.\n2. Tilsæt mel.\n\n**Tegn på færdig:** Ingen tørre klumper.\n### Trin 2: Bag\n1. Bag gyldne.', household);
+  expect(draft.steps).toHaveLength(2);
+  expect(draft.steps[0]?.body).toContain('Tegn på færdig');
+});
