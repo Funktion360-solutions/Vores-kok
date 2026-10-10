@@ -91,7 +91,7 @@ export function PricePanel({
     }
   }
   return (
-    <Card className="mb-6 space-y-4 bg-sand/50 p-5">
+    <Card className="vk-shopping-price mb-6 space-y-4 bg-sand/50 p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="font-display text-xl font-semibold">Pris på det, du mangler</h2>
@@ -100,7 +100,7 @@ export function PricePanel({
             pris.
           </p>
         </div>
-        <strong className="font-display text-2xl text-brand-dark">
+        <strong className="vk-shopping-total font-display text-2xl text-brand-dark">
           {money(known.reduce((sum, x) => sum + x.price.total_ore!, 0))}
         </strong>
       </div>
@@ -120,7 +120,7 @@ export function PricePanel({
           ))}
         </ul>
       ) : null}
-      <div className="flex flex-wrap gap-4 text-sm font-semibold text-brand-dark">
+      <div className="vk-shopping-shortcuts flex flex-wrap gap-4 text-sm font-semibold text-brand-dark">
         <Link href="/shopping/offers">Find tilbud →</Link>
         <Link href="/shopping/import">Importér kvittering →</Link>
         <Link href="/shopping/receipts">Se købshistorik →</Link>

@@ -14,9 +14,9 @@ export default async function ShoppingPage() {
   const lists = await listShoppingLists(db, household.id);
   const canEdit = can(household.role, 'recipe.edit');
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="vk-shopping mx-auto max-w-3xl">
       <PageHeader title="Indkøb" subtitle="Fælles lister, der opdateres live hos alle i husstanden." />
-      <div className="mb-6 grid gap-3 sm:grid-cols-3">
+      <div className="vk-shopping-actions mb-6 grid gap-3 sm:grid-cols-3">
         {(
           [
             ['/shopping/offers', 'Ugens tilbud', 'Søg priser og tilbudsaviser'],
@@ -25,7 +25,7 @@ export default async function ShoppingPage() {
           ] as const
         ).map(([href, title, subtitle]) => (
           <Link key={href} href={href}>
-            <Card className="h-full p-4 transition-colors hover:bg-sand">
+            <Card className="vk-shopping-action h-full p-4 transition-colors hover:bg-sand">
               <h2 className="font-semibold text-brand-dark">{title} →</h2>
               <p className="mt-1 text-sm text-ink-muted">{subtitle}</p>
             </Card>
@@ -40,7 +40,7 @@ export default async function ShoppingPage() {
           {lists.map((l) => (
             <li key={l.id}>
               <Link href={`/shopping/${l.id}`}>
-                <Card className="flex items-center justify-between gap-4 p-5 transition-colors hover:bg-sand">
+                <Card className="vk-shopping-list flex items-center justify-between gap-4 p-5 transition-colors hover:bg-sand">
                   <div>
                     <h2 className="font-display text-xl font-semibold">{l.name}</h2>
                     <p className="text-sm text-ink-muted">Opdateret {formatDate(l.updated_at)}</p>

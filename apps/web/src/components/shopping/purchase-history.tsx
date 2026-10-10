@@ -20,7 +20,7 @@ export function PurchaseHistory({
       d.payload.lines.some((l) => l.name.toLocaleLowerCase('da').includes(q)),
   );
   return (
-    <div className="mx-auto max-w-4xl space-y-5">
+    <div className="vk-shopping mx-auto max-w-4xl space-y-5">
       <PageHeader
         title="Købshistorik"
         subtitle="Faktiske, godkendte kvitteringspriser. Beløbene gælder hele linjens mængde og kan indeholde rabatter."
@@ -50,7 +50,7 @@ export function PurchaseHistory({
         </Card>
       ) : null}
       {shown.map((d) => (
-        <Card key={d.id} className="p-5">
+        <Card key={d.id} className="vk-commerce-card vk-purchase-card p-5">
           <details open={!!q}>
             <summary className="cursor-pointer">
               <div className="inline-flex flex-wrap items-center gap-3">
@@ -82,7 +82,7 @@ export function PurchaseHistory({
                       <p className="text-xs text-ink-muted">{l.warnings.join(' ')}</p>
                     ) : null}
                   </div>
-                  <span className="font-semibold tabular-nums">
+                  <span className="vk-history-price font-semibold tabular-nums">
                     {l.price_ore == null ? 'Pris ukendt' : money(l.price_ore)}
                   </span>
                 </li>

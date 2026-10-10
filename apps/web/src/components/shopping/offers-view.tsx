@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { upsertShoppingItems, type ShoppingItem } from '@vores-kok/database';
+import { listShoppingItems, upsertShoppingItems, type ShoppingItem } from '@vores-kok/database';
 import {
   copenhagenDay,
   money,
@@ -10,6 +10,7 @@ import {
   type OfferCache,
   type ProviderOffer,
 } from '../../../../../packages/validation/src/commerce';
+import { matchingItems } from '../../../../../packages/validation/src/offer-relevance';
 import { commerceDb, itemSignature, type SavedDocument } from '@/lib/commerce-client';
 import { getBrowserClient } from '@/lib/supabase/client';
 import { Alert, Badge, Button, Card, Input, PageHeader, Select } from '../ui';
@@ -53,7 +54,20 @@ export function OffersView({
     [today, setToday] = useState(copenhagenDay()),
     [pending, setPending] = useState(''),
     [added, setAdded] = useState<Record<string, boolean>>({});
+  const [relevantOnly, setRelevantOnly] = useState(lists.length > 0);
+  const [listItems, setListItems] = useState<{listId:string;items:ShoppingItem[]}|null>(null);
+  const [listError,setListError] = useState('');
   const ids = useRef(new Map<string, string>());
+  useEffect(()=>{
+    if(!listId)return;
+    let alive=true;
+    async function load(){try{const items=await listShoppingItems(getBrowserClient(),listId);if(alive){setListItems({listId,items});setListError('');}}catch{if(alive)setListError('Indkøbslisten kunne ikke læses. Vælg Alle tilbud eller prøv igen.');}}
+    void load(); const timer=setInterval(()=>{if(document.visibilityState==='visible')void load();},15000);
+    return()=>{alive=false;clearInterval(timer);};
+  },[listId]);
+  const currentItems=listItems?.listId===listId?listItems.items:[];
+  const listMatches=(name:string)=>matchingItems(name,currentItems);
+
   useEffect(() => {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 110000);
@@ -94,8 +108,9 @@ export function OffersView({
     (o) =>
       offerStatus(o.offer_starts, o.offer_ends, today) === 'active' &&
       (!chain || o.chain_slug === chain) &&
-      (!q || ((o.brand ?? '') + ' ' + (o.name ?? '')).toLocaleLowerCase('da').includes(q)),
-  );
+      (!q || ((o.brand ?? '') + ' ' + (o.name ?? '')).toLocaleLowerCase('da').includes(q)) &&
+      (!relevantOnly || !!q || listMatches((o.brand??'')+' '+(o.name??'')).length>0),
+  ).sort((a,b)=>listMatches((b.brand??'')+' '+(b.name??'')).length-listMatches((a.brand??'')+' '+(a.name??'')).length || (a.name??'').localeCompare(b.name??'','da'));
   const manual = documents
     .flatMap((d) =>
       d.payload.lines
@@ -110,7 +125,7 @@ export function OffersView({
           (d.payload.store ?? '')
             .toLocaleLowerCase('da')
             .includes((CHAIN_LABELS[chain] ?? chain).toLocaleLowerCase('da'))) &&
-        (!q || l.name.toLocaleLowerCase('da').includes(q)),
+        (!q || l.name.toLocaleLowerCase('da').includes(q)) && (!relevantOnly || !!q || listMatches(l.name).length>0),
     );
   async function add(key: string, name: string, store: string, price: number | null, note: string) {
     const requestKey = key + ':' + listId;
@@ -194,7 +209,7 @@ export function OffersView({
     ) : null;
   }
   return (
-    <div className="mx-auto max-w-5xl space-y-5">
+    <div className="vk-shopping mx-auto max-w-5xl space-y-5">
       <PageHeader
         title="Tilbud og tilbudsaviser"
         subtitle="Salling Group, REMA 1000 og Coop. Søg i det hentede udvalg og dine godkendte tilbud."
@@ -207,7 +222,7 @@ export function OffersView({
           ) : null
         }
       />
-      <Card className="space-y-3 bg-sand/50 p-5">
+      <Card className="vk-offers-context space-y-3 bg-sand/50 p-5">
         <h2 className="font-semibold">Dit område: 9000 Aalborg + 45 km</h2>
         <p className="text-sm text-ink-muted">
           API-data er kædepriser. De er endnu ikke bekræftet i hver lokal butik inden for 45 km.
@@ -232,7 +247,7 @@ export function OffersView({
           </p>
         ) : null}
       </Card>
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="vk-offers-toolbar grid gap-3 sm:grid-cols-3">
         <Input
           aria-label="Søg tilbud"
           placeholder="Søg efter fx mælk eller mel"
@@ -247,7 +262,7 @@ export function OffersView({
             </option>
           ))}
         </Select>
-        {canEdit ? (
+        {lists.length > 0 ? (
           <Select
             aria-label="Indkøbsliste til tilbud"
             value={listId}
@@ -262,6 +277,13 @@ export function OffersView({
           </Select>
         ) : null}
       </div>
+      <div className="vk-offers-view-switch flex flex-wrap items-center gap-2">
+        <Button variant={relevantOnly?'primary':'secondary'} disabled={!listId} aria-pressed={relevantOnly} onClick={()=>setRelevantOnly(true)}>Til min indkøbsliste</Button>
+        <Button variant={!relevantOnly?'primary':'secondary'} aria-pressed={!relevantOnly} onClick={()=>setRelevantOnly(false)}>Alle tilbud</Button>
+        <span className="text-sm text-ink-muted">{query.trim()?'Søger i hele det hentede udvalg.':relevantOnly?'Forslag ud fra varernes navne. Kontrollér variant og pakningsstørrelse.':'Hele det hentede udvalg.'}</span>
+      </div>
+      {listError?<Alert tone="info">{listError}</Alert>:null}
+      {relevantOnly&&listId&&!listError&&listItems?.listId!==listId?<p role="status">Finder tilbud til din liste…</p>:null}
       {loading ? (
         <p role="status" className="text-ink-muted">
           Henter fælles tilbudsoversigt…
@@ -270,28 +292,33 @@ export function OffersView({
       {error ? <Alert tone="info">{error}</Alert> : null}
       {initialWarning ? <Alert tone="info">{initialWarning}</Alert> : null}
       {cache?.warnings.length ? (
-        <Alert tone="info">{[...new Set(cache.warnings)].join(' ')}</Alert>
+        <details className="vk-offers-coverage rounded-xl border border-line bg-paper px-5 py-2">
+          <summary className="font-semibold">Om datadækning og manglende kilder</summary>
+          <p className="mb-3 text-sm text-ink-muted">Oversigten er et udvalg. Manglende tilbud betyder ikke, at butikken ingen tilbud har.</p>
+          <ul className="mb-3 list-disc space-y-2 pl-5 text-sm text-ink-muted">{[...new Set(cache.warnings)].map(w=><li key={w}>{w}</li>)}</ul>
+        </details>
       ) : null}
       <section>
         <h2 className="mb-3 font-display text-2xl font-semibold">
           Tilbud i udvalget ({apiOffers.length})
         </h2>
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="vk-offers-grid grid gap-3 md:grid-cols-2">
           {apiOffers.map((o) => {
             const key = o.chain_slug + ':' + o.product_id;
             const name = [o.brand, o.name, o.quantity_label].filter(Boolean).join(' ');
             const matches = comparisons(o);
             return (
-              <Card key={key} className="space-y-3 p-5">
+              <Card key={key} className="vk-commerce-card vk-offer-card space-y-3 p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <Badge tone="brand">{o.chain_name}</Badge>
                     <h3 className="mt-2 font-semibold">{name || 'Vare uden navn'}</h3>
                   </div>
-                  <strong className="whitespace-nowrap font-display text-xl">
+                  <strong className="vk-offer-price whitespace-nowrap font-display text-xl">
                     {money(o.price)}
                   </strong>
                 </div>
+                {listMatches(name).length?<Badge tone="sage">Til din liste: {listMatches(name).join(', ')}</Badge>:null}
                 <p className="text-sm text-ink-muted">
                   Til og med {o.offer_ends}
                   {o.normal_price != null ? ' · Oplyst normalpris ' + money(o.normal_price) : ''}
@@ -334,7 +361,7 @@ export function OffersView({
         </div>
         {!loading && !apiOffers.length ? (
           <p className="text-sm text-ink-muted">
-            Ingen API-tilbud matcher. Importerede tilbud og aviser vises nedenfor.
+            {relevantOnly&&!q?'Ingen navnematch til din liste i det hentede udvalg. Prøv Alle tilbud eller søg på en råvare.':'Ingen API-tilbud matcher søgningen.'} Importerede tilbud og aviser vises nedenfor.
           </p>
         ) : null}
       </section>
@@ -342,14 +369,14 @@ export function OffersView({
         <h2 className="mb-3 font-display text-2xl font-semibold">
           Dine importerede tilbud ({manual.length})
         </h2>
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="vk-offers-grid grid gap-3 md:grid-cols-2">
           {manual.map(({ document: d, line: l }) => {
             const status = offerStatus(l.valid_from, l.valid_to, today);
             return (
-              <Card key={d.id + ':' + l.id} className="space-y-3 p-5">
+              <Card key={d.id + ':' + l.id} className="vk-commerce-card vk-offer-card space-y-3 p-5">
                 <Badge>{d.payload.store ?? 'Ukendt butik'} · Importeret</Badge>
                 <h3 className="font-semibold">{l.name}</h3>
-                <strong className="font-display text-xl">
+                <strong className="vk-offer-price font-display text-xl">
                   {l.price_ore == null ? 'Pris ukendt' : money(l.price_ore)}
                 </strong>
                 <p className="text-sm text-ink-muted">
@@ -388,11 +415,11 @@ export function OffersView({
       </section>
       <section>
         <h2 className="mb-3 font-display text-2xl font-semibold">Tilbudsaviser fra kæderne</h2>
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="vk-offers-grid grid gap-3 md:grid-cols-2">
           {(cache?.flyers ?? [])
             .filter((f) => f.valid_to >= today && (!chain || f.chain_slug === chain))
             .map((f) => (
-              <Card key={f.flyer_id} className="space-y-3 p-5">
+              <Card key={f.flyer_id} className="vk-commerce-card vk-offer-card space-y-3 p-5">
                 <h3 className="font-semibold">{f.chain_name}</h3>
                 <p className="text-sm text-ink-muted">
                   {f.valid_from} – {f.valid_to}

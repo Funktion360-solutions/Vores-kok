@@ -1,0 +1,4 @@
+import {expect,it} from 'vitest';
+import {matchingItems} from '../../validation/src/offer-relevance';
+it('ignores generic adjectives and checked items instead of matching unrelated minced meat',()=>{const items=[{name:'hakket oksekød',checked:false},{name:'mælk',checked:true}];expect(matchingItems('Hakket svinekød 500 g',items)).toEqual([]);expect(matchingItems('Dansk hakket oksekød 500 g',items)).toEqual(['hakket oksekød']);expect(matchingItems('Sødmælk 1 l',items)).toEqual([]);});
+it('matches ingredient names inside product names while requiring the significant words',()=>{expect(matchingItems('Arla sødmælk 1 liter',[{name:'mælk',checked:false}])).toEqual(['mælk']);expect(matchingItems('Manitoba hvedemel',[{name:'Manitoba mel',checked:false}])).toEqual(['Manitoba mel']);expect(matchingItems('Hvedemel 1 kg',[{name:'Manitoba mel',checked:false}])).toEqual([]);});

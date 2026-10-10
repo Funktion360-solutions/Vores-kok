@@ -98,7 +98,7 @@ export async function handleOffers(req: Request): Promise<Response> {
       try {
         const response = await fetch('https://api.prej.app' + path, {
           headers: { Authorization: 'Bearer ' + key },
-          signal: AbortSignal.timeout(8000),
+          signal: AbortSignal.timeout(30000),
         });
         if (!response.ok) {
           if ([401, 403, 429].includes(response.status)) blocked = true;
@@ -122,7 +122,7 @@ export async function handleOffers(req: Request): Promise<Response> {
       payload.flyers = flyers.data.flyers.filter((f) => ALL.includes(f.chain_slug)).slice(0, 100);
       payload.as_of = flyers.data.as_of;
     } else payload.warnings.push('Tilbudsaviser kunne ikke aflæses fra API.');
-    for (const chain of CHAINS) {
+    await Promise.all(CHAINS.map(async (chain) => {
       for (let page = 1; page <= 2; page++) {
         const offers = z
           .object({
@@ -146,7 +146,7 @@ export async function handleOffers(req: Request): Promise<Response> {
         if (page === 2)
           payload.warnings.push(chain + ': viser højst 200 tilbud, ikke hele kataloget.');
       }
-    }
+    }));
     payload.warnings.push(
       'Coop vises som tilbudsaviser; priser kan importeres fra PDF eller billede. Kædetilbud er ikke verificeret for en bestemt butik i Aalborg.',
     );

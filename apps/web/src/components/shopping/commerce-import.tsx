@@ -253,7 +253,7 @@ export function CommerceImport({
   const included = lines.filter((l) => l.included).length;
   if (saved)
     return (
-      <div className="mx-auto max-w-3xl">
+      <div className="vk-shopping vk-import-complete mx-auto max-w-3xl">
         <PageHeader
           title="Godkendelsen er gemt"
           subtitle="Priserne ligger i historikken. Valgte råvarer er tilføjet til Mit køkken."
@@ -285,7 +285,7 @@ export function CommerceImport({
     );
   if (pending)
     return (
-      <div className="mx-auto max-w-3xl space-y-4">
+      <div className="vk-shopping mx-auto max-w-3xl space-y-4">
         <PageHeader
           title="Bekræft godkendelsen"
           subtitle="Din godkendte import er bevaret i denne browsersession. Samme godkendelse kan sendes igen uden dubletter."
@@ -302,14 +302,14 @@ export function CommerceImport({
       </div>
     );
   return (
-    <div className="mx-auto max-w-4xl space-y-5">
+    <div className="vk-shopping mx-auto max-w-4xl space-y-5">
       <PageHeader
         title="Importér til indkøb"
         subtitle="Aflæs en kvittering eller tilbudsavis. Ret linjerne og godkend dem samlet."
         eyebrow={<Link href="/shopping">← Indkøb</Link>}
       />
       {!document ? (
-        <Card className="space-y-4 p-5 sm:p-7">
+        <Card className="vk-commerce-card vk-import-source space-y-4 p-5 sm:p-7">
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Dokument" htmlFor="commerce-kind">
               <Select
@@ -371,7 +371,7 @@ export function CommerceImport({
         </Card>
       ) : (
         <>
-          <Card className="space-y-4 p-5">
+          <Card className="vk-commerce-card vk-import-review space-y-4 p-5">
             <div className="grid gap-3 sm:grid-cols-2">
               <Field label="Butik" htmlFor="receipt-store">
                 <Input
@@ -459,7 +459,7 @@ export function CommerceImport({
           </Card>
           <div className="space-y-3">
             {lines.map((line, index) => (
-              <Card key={line.id} className={'p-5 ' + (!line.included ? 'opacity-60' : '')}>
+              <Card key={line.id} className={'vk-commerce-card vk-receipt-line p-5 ' + (!line.included ? 'opacity-60' : '')}>
                 <div className="mb-4 flex flex-wrap items-center gap-3">
                   <label className="flex items-center gap-2 font-semibold">
                     <input
@@ -584,7 +584,7 @@ export function CommerceImport({
               </Card>
             ))}
           </div>
-          <div className="sticky bottom-3 rounded-2xl border border-line bg-paper p-4 shadow-lg">
+          <div className="vk-approval-bar sticky bottom-3 rounded-2xl border border-line bg-paper p-4 shadow-lg">
             <Button disabled={busy || included === 0} onClick={() => void save()}>
               {busy ? 'Gemmer…' : 'Godkend og gem ' + included + ' linjer'}
             </Button>

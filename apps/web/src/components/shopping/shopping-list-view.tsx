@@ -127,7 +127,7 @@ export function ShoppingListView({ list, initialItems, canEdit }: { list: Tables
   );
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="vk-shopping mx-auto max-w-3xl">
       <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-0">
           <Link href="/shopping" className="no-print text-sm text-ink-muted hover:text-ink">← Indkøb</Link>
