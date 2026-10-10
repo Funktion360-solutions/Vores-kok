@@ -1,3 +1,4 @@
+import { AkselsMadUpdate } from '@/components/recipe/akselsmad-update';
 import { RichText } from '@/components/recipe/rich-text';
 import { AkselsMadExport } from '@/components/recipe/akselsmad-export';
 import { getRecipe, listPeople, listShoppingLists } from '@vores-kok/database';
@@ -114,6 +115,7 @@ export default async function RecipePage({ params, searchParams }: { params: Pro
           )}
         </div>
       </header>
+      <AkselsMadUpdate recipeId={recipe.id} canEdit={canEdit && !recipe.archived_at} />
 
       {/* ── Ingredients + steps (side by side on large screens / iPad landscape) ── */}
       <div className="grid gap-10 lg:grid-cols-[minmax(300px,380px)_1fr]">

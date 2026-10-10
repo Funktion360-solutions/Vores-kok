@@ -37,7 +37,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     data: { user },
   } = await client.auth.getUser();
   const households = user ? await client.rpc('my_households') : { data: [] };
-  const [favorites, collections, items] = user
+  const [favorites, collections, items, copies] = user
     ? await Promise.all([
         client
           .from('am_favorites')
@@ -50,13 +50,21 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
           .select('collection_id')
           .eq('user_id', user.id)
           .eq('recipe_id', r.id),
+        client
+          .from('am_kitchen_links')
+          .select('recipe_id,household_id,public_revision,created_at,recipes!inner(archived_at)')
+          .is('recipes.archived_at', null)
+          .eq('public_recipe_id', r.id)
+          .order('public_revision', { ascending: false })
+          .order('created_at', { ascending: false }),
       ])
     : [
         { data: [], error: null },
         { data: [], error: null },
         { data: [], error: null },
+        { data: [], error: null },
       ];
-  if (favorites.error || collections.error || items.error)
+  if (favorites.error || collections.error || items.error || copies.error)
     throw new Error('Dine favoritter og samlinger kunne ikke hentes.');
   return (
     <>
@@ -75,10 +83,13 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
         <h2>Tag opskriften med i Vores Kok.</h2>
         <p>Gem din egen kopi i familiens kogebog. Du kan tilpasse den bagefter.</p>
         <CopyToKitchen
+          key={r.id + ':' + r.published_revision}
           id={r.id}
           slug={r.slug}
           households={(households.data || []).filter((h: { role: string }) => h.role !== 'viewer')}
           signedIn={!!user}
+          copies={copies.data || []}
+          publicRevision={r.published_revision}
         />
       </section>
     </>
