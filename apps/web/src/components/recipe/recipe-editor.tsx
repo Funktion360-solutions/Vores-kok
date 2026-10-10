@@ -148,7 +148,7 @@ export function RecipeEditor({ initial, categories: initialCategories, people: i
       meal_types: meals, servings: basics.servings as unknown as number, yield_unit: basics.yield_unit,
       prep_minutes: basics.prep_minutes as unknown as number, cook_minutes: basics.cook_minutes as unknown as number,
       total_minutes: basics.total_minutes as unknown as number, difficulty: (basics.difficulty || null) as RecipeInput['difficulty'],
-      notes: basics.notes, source_type: initial.source_type ?? 'manual', source_name: basics.source_name, source_url: basics.source_url,
+      notes: basics.notes, source_type: initial.source_type ?? 'manual', source_text: initial.source_text, source_name: basics.source_name, source_url: basics.source_url,
       origin_person_id: basics.origin_person_id, origin_text: basics.origin_text, origin_year: basics.origin_year as unknown as number,
       origin_year_approx: basics.origin_year_approx,
       ingredients,

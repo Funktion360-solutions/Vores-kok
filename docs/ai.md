@@ -89,3 +89,16 @@ Supabase advisors, fuld lokal Supabase SQL-suite, native Xcode-build og test på
 iPhone/iPad er ikke gennemført i denne Linux-session. En iOS export er ikke en
 signeret native build. Rigtige AI-svar og husstandsisolering skal også verificeres
 på staging efter secrets/deploy, før funktionen betegnes som driftsklar.
+
+## Web: AI-svar til opskriftsudkast
+
+Knappen under hvert svar åbner den eksisterende opskriftsformular. Udtræk er
+lokalt og deterministisk: titel, Ingredienser og nummereret Fremgangsmåde er
+påkrævet. Ufuldstændige svar afvises med en forklaring. Portioner og tider
+udledes ikke fra løbende tekst og skal kontrolleres/udfyldes af brugeren.
+Originalsvaret bevares i source_text; source_name markeres AI-genereret.
+Ingen opskrift oprettes før brugeren trykker Gem i den eksisterende formular.
+Eksisterende serveradgangskontrol og recipe.create-rettigheder gælder.
+Udkastets originaltekst ligger i sessionStorage for den aktuelle husstand/fane;
+den forsvinder når fanen lukkes, og seneste udkast erstatter tidligere original.
+Dette er endnu kun implementeret på web, ikke i Expo.

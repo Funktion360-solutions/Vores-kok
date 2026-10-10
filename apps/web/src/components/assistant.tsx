@@ -1,10 +1,22 @@
 'use client';
+import { aiDraftKey, parseAiRecipe } from '@/lib/ai-recipe-draft';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Link from 'next/link';
 import { askAssistant } from '@vores-kok/database';
 import { type AiReply } from '@vores-kok/validation';
 import { getBrowserClient } from '@/lib/supabase/client';
 export function Assistant({ householdId }: { householdId: string }) {
+  const router = useRouter();
+  function createDraft(answer: string) {
+    try {
+      parseAiRecipe(answer, householdId);
+      sessionStorage.setItem(aiDraftKey(householdId), answer);
+      router.push('/recipes/new?ai=1');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Udkastet kunne ikke åbnes.');
+    }
+  }
   const [message, setMessage] = useState('');
   const [turns, setTurns] = useState<{ question: string; reply: AiReply }[]>([]);
   const [busy, setBusy] = useState(false);
@@ -43,6 +55,13 @@ export function Assistant({ householdId }: { householdId: string }) {
           <section key={i} className="rounded-xl border p-4">
             <h2 className="font-semibold">{t.question}</h2>
             <p className="mt-3 whitespace-pre-wrap">{t.reply.answer}</p>
+            <button
+              type="button"
+              className="mt-4 min-h-12 rounded-full border px-5"
+              onClick={() => createDraft(t.reply.answer)}
+            >
+              Opret opskrift fra AI-svar
+            </button>
             {t.reply.recipes.length > 0 ? (
               <div className="mt-3">
                 <p className="text-sm">Opskrifter sendt som reference:</p>
