@@ -13,6 +13,8 @@ import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from
 import { getBrowserClient } from '@/lib/supabase/client';
 import { Alert, Button, Input, Select } from '../ui';
 
+import { PricePanel } from './price-panel';
+
 const POLL_MS = 15_000;
 
 /**
@@ -90,7 +92,7 @@ export function ShoppingListView({ list, initialItems, canEdit }: { list: Tables
 
   const row = (i: ShoppingItem) => (
     <li key={i.id} className="flex items-center gap-3 py-1">
-      <button type="button" role="checkbox" aria-checked={i.checked} onClick={() => void toggle(i)}
+      <button type="button" role="checkbox" disabled={!canEdit} aria-checked={i.checked} onClick={() => void toggle(i)}
         className={clsx('flex size-11 shrink-0 items-center justify-center rounded-full border-2 transition-colors', i.checked ? 'border-sage bg-sage text-white' : 'border-line bg-paper hover:border-brand')}
         aria-label={`${i.checked ? 'Fjern flueben fra' : 'Sæt flueben ved'} ${i.name}`}>
         {i.checked ? <Check className="size-5" /> : null}
@@ -142,6 +144,8 @@ export function ShoppingListView({ list, initialItems, canEdit }: { list: Tables
           </p>
         </div>
       </header>
+
+      <PricePanel items={items} householdId={list.household_id} canEdit={canEdit} />
 
       {error ? <div className="mb-4"><Alert>{error}</Alert></div> : null}
 

@@ -16,6 +16,22 @@ export default async function ShoppingPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <PageHeader title="Indkøb" subtitle="Fælles lister, der opdateres live hos alle i husstanden." />
+      <div className="mb-6 grid gap-3 sm:grid-cols-3">
+        {(
+          [
+            ['/shopping/offers', 'Ugens tilbud', 'Søg priser og tilbudsaviser'],
+            ['/shopping/import', 'Importér kvittering', 'PDF, billede eller tekst'],
+            ['/shopping/receipts', 'Købshistorik', 'Godkendte varer og priser'],
+          ] as const
+        ).map(([href, title, subtitle]) => (
+          <Link key={href} href={href}>
+            <Card className="h-full p-4 transition-colors hover:bg-sand">
+              <h2 className="font-semibold text-brand-dark">{title} →</h2>
+              <p className="mt-1 text-sm text-ink-muted">{subtitle}</p>
+            </Card>
+          </Link>
+        ))}
+      </div>
       {canEdit ? <NewListForm householdId={household.id} /> : null}
       {lists.length === 0 ? (
         <div className="mt-6"><EmptyState title="Ingen indkøbslister" icon={<ShoppingBasket className="size-10" />}>Opret en liste, eller lav en fra madplanen eller en opskrift.</EmptyState></div>
