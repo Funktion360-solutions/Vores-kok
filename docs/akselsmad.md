@@ -83,6 +83,16 @@ Hvis domænet ikke er købt/forbundet endnu, brug Vercel-projektets adresse som 
 - Supabase security advisors har ingen nye AkselsMad-fund. Andre produkters eksisterende advisor-fund er ikke ændret.
 - Visuel browserkontrol og login med en virkelig bruger er endnu ikke udført. Produktionsdeployment/domæner mangler fortsat.
 
+## Tekstformatering og design
+
+Introduktion, fremgangsmådetrin og detaljefelter har nu en værktøjslinje. Markér teksten og vælg Fed, Kursiv, Punktliste, Nummereret liste, Underoverskrift eller Fremhævet råd. Cmd/Ctrl+B og Cmd/Ctrl+I virker også.
+
+Klik Vis formatering for at se teksten, som den bliver vist på opskriftssiden. Klik Skriv videre for at redigere igen. Formateringen gemmes som enkel tekst med markører, eksempelvis `**fed**`, `*kursiv*`, `- punkt` og `1. trin`. Eksisterende tekst virker fortsat. HTML fortolkes ikke og bliver vist som almindelig tekst.
+
+Det offentlige layout og administrationen har fået nye feltflader, tydeligere typografi, lister, fokusmarkeringer, større berøringsmål og mere luft. Opdateringen kræver ingen databaseændring eller nye pakker. Formateringsmarkører bevares ved kopi til Vores Kok; denne etape ændrer kun AkselsMads tekstvisning.
+
+Fire tests dækker markering/cursor, lister, linjeskift og behandling af HTML som almindelig tekst. TypeScript, ESLint og produktionsbuild er kontrolleret. Visuel browserkontrol er fortsat ikke udført her.
+
 ## Efter første etape
 
 Fem forskellige PDF-downloads samlet pr. bruger, gratis genhentning, favoritter/samlinger, modererede kommentarer/billeder, nyhedsbrev, annoncer uden for opskriftstrinnene, donationer, trykte kogebøger, yderligere allergenfiltre, central Funktion360-SSO og den dybe DEJ-integration er næste etaper. De vises ikke som aktive funktioner i denne version.

@@ -1,4 +1,5 @@
 'use client';
+import { RichText } from './rich-text';
 import Image from 'next/image';
 import { useState } from 'react';
 import type { Recipe } from '@/lib/model';
@@ -28,7 +29,7 @@ export function RecipeBody({
         <div>
           <span className="eyebrow">{r.category} · AF AKSEL SLOT</span>
           <h1>{r.title}</h1>
-          <p className="lede">{r.description}</p>
+          <RichText className="lede" text={r.description} />
           <div className="recipe-meta">
             <span>{totalTime(r) ? totalTime(r) + ' minutter' : 'Tid ikke angivet'}</span>
             <span>
@@ -94,7 +95,7 @@ export function RecipeBody({
               <p>
                 Trin {step + 1} af {r.steps.length}
               </p>
-              <p className="step-body">{active.body}</p>
+              <RichText className="step-body" text={active.body} />
               {active.timer_seconds ? (
                 <p>Vejledende tid: {Math.round(active.timer_seconds / 60)} min</p>
               ) : null}
@@ -117,7 +118,7 @@ export function RecipeBody({
                 <li key={n}>
                   <span className="step-number">{n + 1}</span>
                   <div className="step-body">
-                    {s.body}
+                    <RichText text={s.body} />
                     {s.timer_seconds ? (
                       <small>Vejledende tid: {Math.round(s.timer_seconds / 60)} min</small>
                     ) : null}
@@ -130,7 +131,7 @@ export function RecipeBody({
             r[field] ? (
               <section className="detail-note" key={field}>
                 <h3>{title}</h3>
-                <p>{r[field]}</p>
+                <RichText text={r[field]!} />
               </section>
             ) : null,
           )}

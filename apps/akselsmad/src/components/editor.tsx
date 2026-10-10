@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { TextEditor } from './text-editor';
 import { browserDb } from '@/lib/client';
 import {
   categories,
@@ -98,6 +99,10 @@ export function Editor({ initial, published }: { initial: Draft | null; publishe
         Ændringer gemmes i en kladde. En tidligere udgivet version ændres først, når du udgiver
         igen.
       </p>
+      <div className="editor-state" role="status">
+        <span className={dirty ? 'state-dot unsaved' : 'state-dot'} />
+        {dirty ? 'Ændringer er ikke gemt' : 'Du redigerer en kladde'}
+      </div>
       <fieldset disabled={busy}>
         <div className="editor-grid">
           <label>
@@ -122,14 +127,12 @@ export function Editor({ initial, published }: { initial: Draft | null; publishe
             />
           </label>
         </div>
-        <label>
-          Introduktion
-          <textarea
-            rows={4}
-            value={r.description}
-            onChange={(e) => change('description', e.target.value)}
-          />
-        </label>
+        <TextEditor
+          label="Introduktion"
+          value={r.description}
+          onChange={(value) => change('description', value)}
+          placeholder="Fortæl om smagen, retten og hvorfor du holder af den."
+        />
         <div className="editor-grid">
           <label>
             Kategori
@@ -290,19 +293,17 @@ export function Editor({ initial, published }: { initial: Draft | null; publishe
         <h2>Detaljeret fremgangsmåde</h2>
         {r.steps.map((s, n) => (
           <div className="step-editor" key={n}>
-            <label>
-              Trin {n + 1}
-              <textarea
-                rows={4}
-                value={s.body}
-                onChange={(e) =>
-                  change(
-                    'steps',
-                    r.steps.map((x, j) => (j === n ? { ...x, body: e.target.value } : x)),
-                  )
-                }
-              />
-            </label>
+            <TextEditor
+              label={'Trin ' + (n + 1)}
+              value={s.body}
+              onChange={(value) =>
+                change(
+                  'steps',
+                  r.steps.map((x, j) => (j === n ? { ...x, body: value } : x)),
+                )
+              }
+              placeholder="Beskriv, hvad man gør, og hvad man skal kigge efter."
+            />
             <label>
               Vejledende minutter
               <input
@@ -346,21 +347,21 @@ export function Editor({ initial, published }: { initial: Draft | null; publishe
           Tilføj trin
         </button>
         <h2>Det, der gør opskriften grundig</h2>
-        {detailFields.map(([key, title]) => (
-          <label key={key}>
-            {title}
-            <textarea
-              rows={4}
+        <div className="detail-editors">
+          {detailFields.map(([key, title]) => (
+            <TextEditor
+              key={key}
+              label={title}
               value={r[key] || ''}
+              onChange={(value) => change(key, value)}
               placeholder={
                 key === 'baking'
                   ? 'Fx dejtemperatur, meltype, vandprocent, hævetegn og tidsplan samme dag / næste dag'
-                  : undefined
+                  : 'Tilføj dine forklaringer, råd og erfaringer.'
               }
-              onChange={(e) => change(key, e.target.value)}
             />
-          </label>
-        ))}
+          ))}
+        </div>
         <h2>Dit eget billede</h2>
         <p>
           Vælg kun et billede, du ønsker offentliggjort. Billeder fra Vores Kok importeres ikke
