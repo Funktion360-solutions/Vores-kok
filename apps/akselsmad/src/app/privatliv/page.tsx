@@ -15,6 +15,13 @@ export default function Privacy() {
         under Mine favoritter og samlinger. Når en konto slettes, slettes også dens favoritter og
         samlinger.
       </p>
+      <h2>PDF-download</h2>
+      <p>
+        Vi gemmer, hvilke opskrifter din konto har hentet som PDF, og tidspunktet for den første
+        download. Det bruges til grænsen på fem forskellige opskrifter i alt. Historikken kan ses
+        under Mine PDF-opskrifter. Den kan ikke nulstilles ved at fjerne en favorit eller samling.
+        Ved kontosletning slettes også downloadhistorikken.
+      </p>
       <h2>Private opskrifter</h2>
       <p>
         Private familieopskrifter bliver ikke automatisk offentliggjort. En redaktør skal oprette en

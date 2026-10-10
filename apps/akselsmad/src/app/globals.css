@@ -1450,3 +1450,12 @@ textarea::placeholder {
 .empty-cookbook { border-radius: 20px; }
 .personal-cookbook h1 { max-width: 950px; }
 @media(max-width: 800px) { .collection-picker { grid-template-columns: 1fr; gap: 8px; } .collection-manager { padding: 18px; } .collection-manager .actions > * { width: 100%; max-width: none; } }
+
+/* PDF downloads and private download history */
+.download-panel { background: var(--sand); border: 1px solid var(--line); border-radius: 22px; margin-block: 28px; }
+.download-panel .actions { margin-top: 20px; flex-wrap: wrap; }
+.download-panel button { min-height: 48px; }
+.pdf-history-item { border-top: 1px solid var(--line); padding-top: 24px; margin-top: 28px; }
+.pdf-history-item .download-panel { padding: 20px; margin-block: 16px; }
+.pdf-history-item .download-panel h2 { font-size: 24px; }
+@media(max-width: 700px) { .download-panel .actions { display: grid; gap: 12px; } .download-panel button { width: 100%; } }

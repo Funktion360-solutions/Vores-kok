@@ -5,6 +5,7 @@ import { photoUrl } from '@/lib/data';
 import type { PublicRecipe } from '@/lib/model';
 import { RecipeBody } from '@/components/recipe-body';
 import { RecipePersonal } from '@/components/recipe-personal';
+import { DownloadPdf } from '@/components/download-pdf';
 import { CopyToKitchen } from '@/components/copy-to-kitchen';
 async function get(slug: string) {
   const client = await db();
@@ -37,7 +38,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     data: { user },
   } = await client.auth.getUser();
   const households = user ? await client.rpc('my_households') : { data: [] };
-  const [favorites, collections, items, copies] = user
+  const [favorites, collections, items, copies, pdfs] = user
     ? await Promise.all([
         client
           .from('am_favorites')
@@ -57,14 +58,16 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
           .eq('public_recipe_id', r.id)
           .order('public_revision', { ascending: false })
           .order('created_at', { ascending: false }),
+        client.from('am_pdf_downloads').select('recipe_id').eq('user_id', user.id),
       ])
     : [
         { data: [], error: null },
         { data: [], error: null },
         { data: [], error: null },
         { data: [], error: null },
+        { data: [], error: null },
       ];
-  if (favorites.error || collections.error || items.error || copies.error)
+  if (favorites.error || collections.error || items.error || copies.error || pdfs.error)
     throw new Error('Dine favoritter og samlinger kunne ikke hentes.');
   return (
     <>
@@ -77,6 +80,14 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
         favorite={!!favorites.data?.length}
         collections={collections.data || []}
         memberships={(items.data || []).map((item) => item.collection_id)}
+      />
+      <DownloadPdf
+        key={r.id + ':' + (pdfs.data || []).length}
+        id={r.id}
+        slug={r.slug}
+        signedIn={!!user}
+        used={(pdfs.data || []).length}
+        downloaded={(pdfs.data || []).some((row) => row.recipe_id === r.id)}
       />
       <section className="section integration-panel">
         <span className="eyebrow">FRA MIT KØKKEN TIL DIT</span>
