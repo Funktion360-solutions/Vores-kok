@@ -4,9 +4,10 @@ import type { RecipeDocument } from '@vores-kok/validation';
 import clsx from 'clsx';
 import { ArrowLeft, ArrowRight, BellRing, Check, List, Pause, Play, Timer, X } from 'lucide-react';
 import Link from 'next/link';
+import { advanceTimers, MAX_TIMER_SECONDS, restoreCookSession, type RunningTimer } from '../../../../../packages/validation/src/cook-session';
+import { Alert, Button, Field, Input } from '../ui';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-interface RunningTimer { id: string; label: string; total: number; endsAt: number | null; remaining: number; done: boolean }
 
 function beep() {
   try {
@@ -20,6 +21,7 @@ function beep() {
       g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.4 + 0.3);
       o.start(ctx.currentTime + i * 0.4); o.stop(ctx.currentTime + i * 0.4 + 0.32);
     }
+    setTimeout(() => { void ctx.close(); }, 1800);
   } catch { /* audio not available */ }
   navigator.vibrate?.([300, 150, 300, 150, 300]);
 }
@@ -54,7 +56,17 @@ export function CookMode({ recipe, servings }: { recipe: RecipeDocument; serving
   const [finished, setFinished] = useState(false);
   const [showIngredients, setShowIngredients] = useState(false);
   const [timers, setTimers] = useState<RunningTimer[]>([]);
-  const wake = useWakeLock(!finished);
+  const [checked, setChecked] = useState<string[]>([]);
+  const [restored, setRestored] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const [timerMinutes, setTimerMinutes] = useState('');
+  const [timerName, setTimerName] = useState('');
+  const [timerError, setTimerError] = useState('');
+  const [storageError, setStorageError] = useState(false);
+  const storageKey = `vk:cook:v1:${recipe.household_id}:${recipe.id}:${recipe.version}:${servings ?? 'original'}`;
+  const ingredientIds = useMemo(() => recipe.ingredients.map(i => i.id), [recipe.ingredients]);
+  const sounded = useRef(new Set<string>());
+  const wake = useWakeLock(!finished || timers.some(t => t.endsAt !== null && !t.done));
   const factor = scaleFactor(recipe.servings, servings);
   const headingRef = useRef<HTMLHeadingElement>(null);
 
@@ -74,11 +86,37 @@ export function CookMode({ recipe, servings }: { recipe: RecipeDocument; serving
     setFinished(false);
   }, [steps.length]);
 
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+    try {
+      const raw = sessionStorage.getItem(storageKey);
+      const saved = raw ? restoreCookSession(raw, steps.length, ingredientIds) : null;
+      if (saved) {
+        setIndex(saved.index); setFinished(saved.finished); setChecked(saved.checked); setTimers(saved.timers);
+        sounded.current = new Set(saved.timers.filter(t => t.done).map(t => t.id));
+        setRestored(true);
+      }
+    } catch { setStorageError(true); }
+    setLoaded(true);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [storageKey, steps.length, ingredientIds]);
+
+  useEffect(() => {
+    if (!loaded) return;
+    try { sessionStorage.setItem(storageKey, JSON.stringify({ savedAt: Date.now(), index, finished, checked, timers })); }
+    catch {
+      const frame = requestAnimationFrame(() => setStorageError(true));
+      return () => cancelAnimationFrame(frame);
+    }
+  }, [loaded, storageKey, index, finished, checked, timers]);
+
   useEffect(() => { headingRef.current?.focus(); }, [index, finished]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement).tagName === 'INPUT') return;
+      const target = e.target;
+      if (target instanceof HTMLElement && (target.closest('input, textarea, select, button, a, summary') || target.isContentEditable)) return;
       if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); go(index + 1); }
       if (e.key === 'ArrowLeft') { e.preventDefault(); go(index - 1); }
     };
@@ -86,22 +124,29 @@ export function CookMode({ recipe, servings }: { recipe: RecipeDocument; serving
     return () => window.removeEventListener('keydown', onKey);
   }, [go, index]);
 
-  // Timer tick
+  // Absolute deadlines keep the remaining time correct after a sleeping tab resumes.
+  const hasRunningTimer = timers.some(t => t.endsAt !== null && !t.done);
   useEffect(() => {
-    if (!timers.some((t) => t.endsAt && !t.done)) return;
-    const h = setInterval(() => {
-      setTimers((cur) => cur.map((t) => {
-        if (!t.endsAt || t.done) return t;
-        const remaining = Math.max(0, Math.round((t.endsAt - Date.now()) / 1000));
-        if (remaining === 0) { beep(); return { ...t, remaining: 0, done: true, endsAt: null }; }
-        return { ...t, remaining };
-      }));
-    }, 250);
-    return () => clearInterval(h);
+    if (!hasRunningTimer) return;
+    const tick = () => setTimers(cur => advanceTimers(cur, Date.now()));
+    const h = setInterval(tick, 1000);
+    window.addEventListener('focus', tick);
+    document.addEventListener('visibilitychange', tick);
+    return () => { clearInterval(h); window.removeEventListener('focus', tick); document.removeEventListener('visibilitychange', tick); };
+  }, [hasRunningTimer]);
+  useEffect(() => {
+    const newlyDone = timers.filter(t => t.done && !sounded.current.has(t.id));
+    if (newlyDone.length) { newlyDone.forEach(t => sounded.current.add(t.id)); beep(); }
   }, [timers]);
 
-  const startTimer = (seconds: number, label: string) => setTimers((cur) => [...cur, { id: crypto.randomUUID(), label: `Trin ${index + 1}: ${label}`, total: seconds, remaining: seconds, endsAt: Date.now() + seconds * 1000, done: false }]);
-  const toggleTimer = (id: string) => setTimers((cur) => cur.map((t) => (t.id !== id || t.done ? t : t.endsAt ? { ...t, endsAt: null } : { ...t, endsAt: Date.now() + t.remaining * 1000 })));
+  const startTimer = (seconds: number, label: string) => {
+    if (timers.length >= 20) { setTimerError('Du kan have højst 20 timere. Fjern en timer først.'); return; }
+    if (!Number.isInteger(seconds) || seconds < 1 || seconds > MAX_TIMER_SECONDS) { setTimerError('Vælg en timer mellem 1 sekund og 7 dage.'); return; }
+    setTimerError('');
+    setTimers(cur => [...cur, { id: crypto.randomUUID(), label: `Trin ${index + 1}: ${label}`.slice(0, 200), total: seconds, remaining: seconds, endsAt: Date.now() + seconds * 1000, done: false }]);
+  };
+  const toggleTimer = (id: string) => setTimers(cur => advanceTimers(cur, Date.now()).map(t => t.id !== id || t.done ? t : t.endsAt !== null ? { ...t, endsAt: null } : { ...t, endsAt: Date.now() + t.remaining * 1000 }));
+  const resetCooking = () => { setIndex(0); setFinished(false); setChecked([]); setRestored(false); headingRef.current?.focus(); };
   const removeTimer = (id: string) => setTimers((cur) => cur.filter((t) => t.id !== id));
 
   const ingredientList = (
@@ -111,7 +156,7 @@ export function CookMode({ recipe, servings }: { recipe: RecipeDocument; serving
         return (
           <li key={i.id} className={clsx('grid grid-cols-[6rem_1fr] gap-3 py-2.5 text-lg', hot && 'rounded-lg bg-honey-soft px-2 font-semibold')}>
             <span className="text-right tabular-nums">{amounts.get(i.id)}</span>
-            <span>{i.name}{i.preparation ? `, ${i.preparation}` : ''}</span>
+            <label className={clsx('flex cursor-pointer items-start gap-3', checked.includes(i.id) && 'text-ink-muted line-through')}><input type="checkbox" className="mt-1.5 size-5 shrink-0 accent-brand" checked={checked.includes(i.id)} onChange={e => setChecked(ids => e.target.checked ? [...ids, i.id] : ids.filter(id => id !== i.id))} /><span>{i.name}{i.preparation ? `, ${i.preparation}` : ''}</span></label>
           </li>
         );
       })}
@@ -134,6 +179,8 @@ export function CookMode({ recipe, servings }: { recipe: RecipeDocument; serving
         </button>
       </header>
 
+      {restored ? <div className="px-4 py-3 sm:px-8"><Alert tone="success">Dit trin, ingredienser og timere er gendannet fra denne browserfane. <button type="button" className="ml-2 underline" onClick={resetCooking}>Start trinene forfra</button></Alert></div> : null}
+      {storageError ? <div className="px-4 py-3 sm:px-8"><Alert tone="info">Browseren kunne ikke gemme fremskridt. Lad siden være åben.</Alert></div> : null}
       <div className="h-2 bg-sand" role="progressbar" aria-label="Fremskridt" aria-valuemin={1} aria-valuemax={steps.length} aria-valuenow={finished ? steps.length : index + 1}>
         <div className="h-full bg-brand transition-[width]" style={{ width: `${steps.length ? ((finished ? steps.length : index + 1) / steps.length) * 100 : 100}%` }} />
       </div>
@@ -141,6 +188,7 @@ export function CookMode({ recipe, servings }: { recipe: RecipeDocument; serving
       <div className="flex flex-1 flex-col lg:grid lg:grid-cols-[minmax(320px,420px)_1fr]">
         <aside className={clsx('border-line bg-paper p-6 lg:block lg:border-r', showIngredients ? 'block border-b' : 'hidden')} aria-label="Ingredienser">
           <h2 className="mb-3 text-2xl font-semibold">Ingredienser</h2>
+          <p className="mb-3 text-sm text-ink-muted">Afkryds ingredienser, når du har gjort dem klar. {checked.length} af {recipe.ingredients.length} klar.</p>
           {ingredientList}
         </aside>
 
@@ -151,7 +199,7 @@ export function CookMode({ recipe, servings }: { recipe: RecipeDocument; serving
               <h1 ref={headingRef} tabIndex={-1} className="text-5xl font-semibold">Velbekomme!</h1>
               <p className="mt-3 text-xl text-ink-soft">{steps.length ? `Alle ${steps.length} trin er klaret.` : 'Opskriften har ingen trin.'}</p>
               <div className="mt-8 flex justify-center gap-3">
-                {steps.length ? <button type="button" onClick={() => go(0)} className="min-h-14 rounded-full border border-line bg-paper px-6 text-lg">Start forfra</button> : null}
+                {steps.length ? <button type="button" onClick={resetCooking} className="min-h-14 rounded-full border border-line bg-paper px-6 text-lg">Start forfra</button> : null}
                 <Link href={`/recipes/${recipe.id}`} className="inline-flex min-h-14 items-center rounded-full bg-brand px-6 text-lg font-medium text-white">Tilbage til opskriften</Link>
               </div>
             </div>
@@ -195,6 +243,9 @@ export function CookMode({ recipe, servings }: { recipe: RecipeDocument; serving
         </main>
       </div>
 
+      <section aria-label="Din egen timer" className="border-t border-line bg-paper px-5 py-5 sm:px-8">
+        <div className="mx-auto max-w-5xl"><h2 className="text-xl font-semibold">Tilføj din egen timer</h2><form className="mt-3 flex flex-wrap items-end gap-3" onSubmit={e => { e.preventDefault(); const seconds = Math.round(Number(timerMinutes.replace(',', '.')) * 60); startTimer(seconds, timerName.trim() || formatTimer(seconds)); }}><Field label="Minutter" htmlFor="cook-timer-minutes"><Input id="cook-timer-minutes" className="max-w-36" value={timerMinutes} inputMode="decimal" onChange={e => setTimerMinutes(e.target.value)} placeholder="Fx 15" /></Field><Field label="Navn (valgfrit)" htmlFor="cook-timer-name"><Input id="cook-timer-name" maxLength={150} value={timerName} onChange={e => setTimerName(e.target.value)} placeholder="Fx efterhævning" /></Field><Button type="submit" disabled={!timerMinutes.trim()}>Start timer</Button></form>{timerError ? <div className="mt-3"><Alert>{timerError}</Alert></div> : null}<p className="mt-3 text-xs text-ink-muted">Fremskridt gemmes i denne browserfane i op til 24 timer. Timere fortsætter ud fra sluttidspunktet, men lyd kan udeblive, når skærmen er låst eller siden er i baggrunden. Brug telefonens alarm, hvis tiden er vigtig. “Start forfra” nulstiller trin og afkrydsninger; aktive timere fortsætter.</p></div>
+      </section>
       {timers.length ? (
         <div className="sticky bottom-0 z-20 border-t border-line bg-paper/95 px-4 py-3 backdrop-blur" role="region" aria-label="Timere">
           <ul className="mx-auto flex max-w-5xl flex-wrap gap-2">

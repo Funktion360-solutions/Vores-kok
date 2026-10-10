@@ -14,5 +14,5 @@ export default async function CookPage({ params, searchParams }: { params: Promi
   const recipe = await getRecipe(db, id);
   if (!recipe) notFound();
   const n = Number(servings);
-  return <CookMode recipe={recipe} servings={Number.isInteger(n) && n > 0 && n <= 1000 ? n : recipe.servings} />;
+  return <CookMode key={`${recipe.household_id}:${recipe.id}:${recipe.version}:${servings ?? 'original'}`} recipe={recipe} servings={Number.isInteger(n) && n > 0 && n <= 1000 ? n : recipe.servings} />;
 }
