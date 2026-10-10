@@ -64,8 +64,8 @@ function Section({ title, description, children }: { title: string; description?
   );
 }
 
-export function RecipeEditor({ initial, categories: initialCategories, people: initialPeople, mode }: {
-  initial: RecipePayload; categories: Category[]; people: Person[]; mode: 'create' | 'edit';
+export function RecipeEditor({ initial, categories: initialCategories, people: initialPeople, mode, onSaved }: {
+  initial: RecipePayload; categories: Category[]; people: Person[]; mode: 'create' | 'edit'; onSaved?: (id: string) => Promise<void>;
 }) {
   const router = useRouter();
   const uid = useId();
@@ -164,6 +164,7 @@ export function RecipeEditor({ initial, categories: initialCategories, people: i
     start(async () => {
       try {
         const res = await saveRecipe(getBrowserClient(), input);
+        if (onSaved) { await onSaved(res.id); return; }
         router.push(`/recipes/${res.id}`);
         router.refresh();
       } catch (err) {

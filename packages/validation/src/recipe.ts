@@ -224,6 +224,7 @@ export function documentToInput(doc: RecipeDocument): RecipePayload {
     notes: doc.notes,
     source_type: doc.source_type,
     source_name: doc.source_name,
+    source_text: doc.source_text,
     source_url: doc.source_url,
     origin_person_id: doc.origin_person_id,
     origin_text: doc.origin_text,

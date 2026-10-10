@@ -34,3 +34,6 @@ double_confirm_changes = true
 
 [functions.ai-assistant]
 verify_jwt = true
+
+[functions.recipe-import]
+verify_jwt = true

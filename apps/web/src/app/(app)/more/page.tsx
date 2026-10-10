@@ -33,7 +33,7 @@ export default function MorePage() {
       </ul>
       <h2 className="mb-3 mt-10 text-xl font-semibold">På vej</h2>
       <ul className="grid gap-4 sm:grid-cols-2">
-        <Item icon={<Download className="size-6" />} title="Importér" text="Fra hjemmesider, fotos, PDF og håndskrevne kort." soon="Fase 3" />
+        <Item href="/import" icon={<Download className="size-6" />} title="Importér" text="Fra hjemmesider, fotos, PDF og håndskrevne kort." />
         <Item href="/assistant" icon={<MessageCircle className="size-6" />} title="Assistent" text="“Hvad kan vi lave?” og erstatninger." />
       </ul>
       <form action={signOut} className="mt-10">
