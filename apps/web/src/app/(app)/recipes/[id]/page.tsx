@@ -1,3 +1,4 @@
+import { AkselsMadExport } from '@/components/recipe/akselsmad-export';
 import { getRecipe, listPeople, listShoppingLists } from '@vores-kok/database';
 import {
   can,
@@ -97,6 +98,7 @@ export default async function RecipePage({ params, searchParams }: { params: Pro
           </div>
           <div className="no-print mt-3 flex flex-wrap gap-2">
             {role ? <FavoriteButton recipeId={recipe.id} initial={recipe.is_favorite} /> : null}
+            <AkselsMadExport recipeId={recipe.id} />
             <RecipeActions recipeId={recipe.id} title={recipe.title} canEdit={canEdit} canDelete={can(role, 'recipe.delete')} archived={!!recipe.archived_at} />
           </div>
         </div>
