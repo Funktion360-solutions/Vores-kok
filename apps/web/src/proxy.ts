@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-const PUBLIC_PATHS = ['/login', '/signup', '/auth/callback', '/auth/reset'];
+const PUBLIC_PATHS = ['/om', '/funktioner', '/robots.txt', '/sitemap.xml', '/login', '/signup', '/auth/callback', '/auth/reset'];
 
 function buildCsp(nonce: string): string {
   const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
@@ -55,7 +55,7 @@ export async function proxy(request: NextRequest) {
 
   if (!data.user && !isPublic) {
     const url = request.nextUrl.clone();
-    url.pathname = '/login';
+    url.pathname = path === '/' ? '/om' : '/login';
     url.search = path !== '/' ? `?next=${encodeURIComponent(path + request.nextUrl.search)}` : '';
     const redirect = NextResponse.redirect(url);
     for (const c of response.cookies.getAll()) redirect.cookies.set(c);
