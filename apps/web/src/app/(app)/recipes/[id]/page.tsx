@@ -1,3 +1,4 @@
+import { RichText } from '@/components/recipe/rich-text';
 import { AkselsMadExport } from '@/components/recipe/akselsmad-export';
 import { getRecipe, listPeople, listShoppingLists } from '@vores-kok/database';
 import {
@@ -78,7 +79,7 @@ export default async function RecipePage({ params, searchParams }: { params: Pro
               {recipe.origin_year ? <span className="text-ink-muted">· {formatYear(recipe.origin_year, recipe.origin_year_approx)}</span> : null}
             </p>
           ) : null}
-          {recipe.description ? <p className="mt-4 max-w-2xl whitespace-pre-wrap text-lg leading-relaxed text-ink-soft">{recipe.description}</p> : null}
+          {recipe.description ? <RichText className="mt-4 max-w-2xl text-lg leading-relaxed text-ink-soft" text={recipe.description} /> : null}
           <dl className="mt-6 flex flex-wrap gap-x-6 gap-y-3 text-sm">
             {recipe.prep_minutes != null ? <div className="flex items-center gap-2"><Timer className="size-4 text-brand" aria-hidden /><dt className="text-ink-muted">Forberedelse</dt><dd className="font-medium">{formatMinutes(recipe.prep_minutes)}</dd></div> : null}
             {recipe.cook_minutes != null ? <div className="flex items-center gap-2"><ChefHat className="size-4 text-brand" aria-hidden /><dt className="text-ink-muted">Tilberedning</dt><dd className="font-medium">{formatMinutes(recipe.cook_minutes)}</dd></div> : null}
@@ -130,7 +131,7 @@ export default async function RecipePage({ params, searchParams }: { params: Pro
                 <span className="flex size-9 items-center justify-center rounded-full bg-brand-soft font-display font-semibold text-brand-dark" aria-hidden>{i + 1}</span>
                 <div>
                   {s.section && s.section !== recipe.steps[i - 1]?.section ? <h3 className="mb-1 font-display text-lg font-semibold text-ink-soft">{s.section}</h3> : null}
-                  <p className="whitespace-pre-wrap text-[17px] leading-relaxed">{s.body}</p>
+                  <RichText className="text-[17px] leading-relaxed" text={s.body} />
                   {s.timer_seconds ? <p className="mt-1 flex items-center gap-1 text-sm text-ink-muted"><Timer className="size-3.5" aria-hidden /> {formatMinutes(Math.round(s.timer_seconds / 60))}</p> : null}
                 </div>
               </li>
@@ -139,7 +140,7 @@ export default async function RecipePage({ params, searchParams }: { params: Pro
           {recipe.notes ? (
             <div className="mt-8 rounded-xl border-l-4 border-honey bg-honey-soft/60 p-5">
               <h3 className="mb-1 font-display text-lg font-semibold">Gode råd</h3>
-              <p className="whitespace-pre-wrap leading-relaxed">{recipe.notes}</p>
+              <RichText className="leading-relaxed" text={recipe.notes} />
             </div>
           ) : null}
         </section>

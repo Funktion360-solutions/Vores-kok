@@ -24,6 +24,9 @@ export default async function Page() {
         <Link className="button" href="/opskrifter">
           Find en opskrift
         </Link>
+        <Link className="button secondary" href="/konto/kogebog">
+          Mine favoritter og samlinger
+        </Link>
         {data ? (
           <Link className="button secondary" href="/admin">
             Åbn administration ↗

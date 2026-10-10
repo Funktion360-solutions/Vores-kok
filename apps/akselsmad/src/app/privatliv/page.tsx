@@ -9,6 +9,12 @@ export default function Privacy() {
         Login bruger samme brugerregister som Vores Kok og DEJ. En nødvendig sessionscookie holder
         dig logget ind på AkselsMad. Din e-mail vises kun på din egen kontoside.
       </p>
+      <h2>Favoritter og samlinger</h2>
+      <p>
+        Dine gemte opskrifter og samlingsnavne knyttes til din konto. De er private og kan fjernes
+        under Mine favoritter og samlinger. Når en konto slettes, slettes også dens favoritter og
+        samlinger.
+      </p>
       <h2>Private opskrifter</h2>
       <p>
         Private familieopskrifter bliver ikke automatisk offentliggjort. En redaktør skal oprette en

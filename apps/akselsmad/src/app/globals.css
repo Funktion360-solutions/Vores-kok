@@ -1424,3 +1424,29 @@ textarea::placeholder {
     display: none;
   }
 }
+
+/* Private inspiration library */
+.personal-panel { background: var(--blue); border-radius: 24px; margin-block: 28px; }
+.personal-panel h2 { margin-top: 8px; }
+.personal-panel .actions { margin-block: 20px; }
+.collection-picker { display: grid; grid-template-columns: minmax(130px, 1fr) minmax(200px, 2fr) auto; gap: 16px; align-items: center; max-width: 850px; }
+.collection-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-block: 30px; }
+.collection-tabs a { border: 1px solid var(--line); padding: 10px 18px; border-radius: 999px; text-decoration: none; background: white; overflow-wrap: anywhere; }
+.collection-tabs a.active { background: var(--blue-dark); color: white; border-color: var(--blue-dark); }
+.collection-manager { padding: 24px; background: var(--sand); border: 1px solid var(--line); border-radius: 18px; margin-bottom: 36px; }
+.collection-manager label { display: block; font-weight: 600; margin-bottom: 8px; }
+.collection-manager .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.collection-manager input:not([type=checkbox]) { flex: 1; min-width: 180px; max-width: 500px; }
+.collection-edit { border-top: 1px solid var(--line); padding-top: 20px; margin-top: 24px; }
+.collection-edit details { margin-top: 20px; }
+.collection-edit summary { cursor: pointer; padding-block: 8px; }
+.delete-confirm { display: flex !important; gap: 10px; align-items: center; }
+.saved-recipe { min-width: 0; background: white; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+.saved-recipe .recipe-card { border: 0; }
+.saved-card-action { padding: 0 20px 20px; }
+.saved-card-action button { width: 100%; }
+.saved-card-action p:empty { display: none; }
+.unavailable-recipe, .empty-cookbook { padding: 30px; background: var(--sand); }
+.empty-cookbook { border-radius: 20px; }
+.personal-cookbook h1 { max-width: 950px; }
+@media(max-width: 800px) { .collection-picker { grid-template-columns: 1fr; gap: 8px; } .collection-manager { padding: 18px; } .collection-manager .actions > * { width: 100%; max-width: none; } }

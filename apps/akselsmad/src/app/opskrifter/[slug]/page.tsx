@@ -4,6 +4,7 @@ import { db } from '@/lib/supabase';
 import { photoUrl } from '@/lib/data';
 import type { PublicRecipe } from '@/lib/model';
 import { RecipeBody } from '@/components/recipe-body';
+import { RecipePersonal } from '@/components/recipe-personal';
 import { CopyToKitchen } from '@/components/copy-to-kitchen';
 async function get(slug: string) {
   const client = await db();
@@ -36,9 +37,39 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     data: { user },
   } = await client.auth.getUser();
   const households = user ? await client.rpc('my_households') : { data: [] };
+  const [favorites, collections, items] = user
+    ? await Promise.all([
+        client
+          .from('am_favorites')
+          .select('recipe_id')
+          .eq('user_id', user.id)
+          .eq('recipe_id', r.id),
+        client.from('am_collections').select('id,name').eq('user_id', user.id).order('created_at'),
+        client
+          .from('am_collection_items')
+          .select('collection_id')
+          .eq('user_id', user.id)
+          .eq('recipe_id', r.id),
+      ])
+    : [
+        { data: [], error: null },
+        { data: [], error: null },
+        { data: [], error: null },
+      ];
+  if (favorites.error || collections.error || items.error)
+    throw new Error('Dine favoritter og samlinger kunne ikke hentes.');
   return (
     <>
       <RecipeBody recipe={r.content} image={await photoUrl(r.content.cover_path)} />
+      <RecipePersonal
+        key={r.id}
+        id={r.id}
+        slug={r.slug}
+        signedIn={!!user}
+        favorite={!!favorites.data?.length}
+        collections={collections.data || []}
+        memberships={(items.data || []).map((item) => item.collection_id)}
+      />
       <section className="section integration-panel">
         <span className="eyebrow">FRA MIT KØKKEN TIL DIT</span>
         <h2>Tag opskriften med i Vores Kok.</h2>
