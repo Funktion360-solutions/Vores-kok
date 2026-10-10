@@ -9,7 +9,7 @@ import { useMemo, useState, useTransition, type FormEvent } from 'react';
 import { getBrowserClient } from '@/lib/supabase/client';
 import { PantryBulk } from './pantry-bulk';
 import { Dialog } from '../dialog';
-import { Alert, Badge, Button, Card, Field, Input, PageHeader, Select, Textarea } from '../ui';
+import { Alert, Badge, Button, Card, Field, Input, LinkButton, PageHeader, Select, Textarea } from '../ui';
 
 const tone = { expired: 'bg-danger-soft text-danger', today: 'bg-danger-soft text-danger', soon: 'bg-honey-soft text-ink', ok: 'bg-sand text-ink-soft', none: '' } as const;
 
@@ -75,6 +75,7 @@ export function PantryView({ householdId, locations, items, canEdit, today }: { 
     <div className="mx-auto max-w-5xl">
       <PageHeader title="Mit køkken" subtitle="Hvad har vi i køleskab, fryser og skabe?"
         actions={canEdit ? <><Button variant="secondary" disabled={!locations.length} onClick={() => setBulk(true)}>Tilføj flere varer</Button><Button disabled={!locations.length} onClick={() => setDialog({})}><Plus className="size-5" aria-hidden /> Tilføj vare</Button></> : null} />
+      <Card className="mb-5 flex flex-wrap items-center justify-between gap-3 p-4"><div><h2 className="font-semibold">Hvad kan jeg lave med mit lager?</h2><p className="mt-1 text-sm text-ink-soft">Åbn et spørgsmål med dine råvarer. Du gennemgår og sender det selv.</p></div><LinkButton href="/assistant?pantry=1" variant="soft">Spørg AI om mine råvarer</LinkButton></Card>
       {error ? <div className="mb-4"><Alert>{error}</Alert></div> : null}
 
       {urgent.length ? (
