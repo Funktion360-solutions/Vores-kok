@@ -7,7 +7,14 @@ function load(file, mocks = {}, globals = {}) {
   const exports = {};
   const source = ts.transpileModule(
     fs.readFileSync(new URL('../src/' + file, import.meta.url), 'utf8'),
-    { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } },
+    {
+      fileName: file,
+      compilerOptions: {
+        module: ts.ModuleKind.CommonJS,
+        target: ts.ScriptTarget.ES2022,
+        jsx: ts.JsxEmit.ReactJSX,
+      },
+    },
   ).outputText;
   vm.runInNewContext(source, {
     exports,
@@ -268,4 +275,97 @@ test('preview of a locked campaign returns its frozen HTML', async () => {
   const r = await a.run('preview');
   assert.equal((await r.json()).html, 'FROZEN');
   assert.equal(a.events.length, 0);
+});
+
+const workspace = load('lib/newsletter-workspace.ts', { './newsletter': newsletter });
+test('copying a sent letter creates content only and removes unpublished cards without changing the original', () => {
+  const original = {
+    content: { ...content, items: [...content.items, { kind: 'blog', id: segment }] },
+    status: 'sent',
+    id,
+    provider_id: broadcast,
+    revision: 6,
+    html_body: 'FROZEN',
+    sender: 'OLD',
+    segment_id: segment,
+  };
+  const before = JSON.stringify(original);
+  const result = workspace.copyNewsletterDraft(original, items);
+  assert.equal(result.removed, 1);
+  assert.equal(result.content.items.length, 1);
+  assert.equal(result.content.subject, 'Nyt brev: ' + content.subject);
+  assert.equal(JSON.stringify(original), before);
+  assert.equal(
+    Object.keys(result.content).sort().join(','),
+    'closing,intro,items,preheader,subject,title',
+  );
+  assert.equal(result.provider_id, undefined);
+  assert.equal(result.status, undefined);
+  assert.equal(result.content.html_body, undefined);
+});
+test('copying a letter with unresolved provider state is blocked', () => {
+  for (const status of ['preparing', 'ready', 'sending', 'submitted'])
+    assert.throws(() => workspace.copyNewsletterDraft({ content, status }, items), /afklaret/);
+});
+test('moving a selected card changes the actual mail order without mutating saved selections', () => {
+  const second = {
+    kind: 'guide',
+    id: segment,
+    title: 'Guide til mel',
+    excerpt: 'Lær om mel',
+    href: '/guides/mel',
+  };
+  const selected = [...content.items, { kind: 'guide', id: segment }];
+  const moved = workspace.moveNewsletterItem(selected, 1, -1);
+  const rendered = newsletter.renderNewsletter(
+    { ...content, items: moved },
+    [...items, second],
+    env.NEXT_PUBLIC_SITE_URL,
+  );
+  assert.ok(rendered.html.indexOf('/guides/mel') < rendered.html.indexOf('/opskrifter/boller'));
+  assert.ok(rendered.text.indexOf('/guides/mel') < rendered.text.indexOf('/opskrifter/boller'));
+  assert.equal(selected[0].id, id);
+});
+test('copy page reads only the signed-in publisher’s source and initializes an unsaved new letter', async () => {
+  const conditions = [];
+  const source = { content, status: 'sent' };
+  const page = load('app/admin/nyhedsbrev/ny/page.tsx', {
+    'react/jsx-runtime': {
+      jsx: (type, props, key) => ({ type, props, key }),
+      jsxs: (type, props, key) => ({ type, props, key }),
+    },
+    'next/link': { default: () => {} },
+    'next/navigation': {
+      notFound: () => {
+        throw Error('not-found');
+      },
+    },
+    '@/lib/data': {
+      requirePublisher: async () => ({
+        user: { id: segment, email: 'publisher@example.invalid' },
+        client: {
+          from: () => ({
+            select() {
+              return this;
+            },
+            eq(key, value) {
+              conditions.push([key, value]);
+              return this;
+            },
+            single: async () => ({ data: source, error: null }),
+          }),
+        },
+      }),
+    },
+    '@/lib/newsletter-data': { newsletterItems: async () => items },
+    '@/lib/newsletter-resend': { newsletterConfigured: () => false },
+    '@/lib/newsletter': newsletter,
+    '@/lib/newsletter-workspace': workspace,
+    '@/components/newsletter-editor': { NewsletterEditor: () => {} },
+  });
+  const rendered = await page.default({ searchParams: Promise.resolve({ copy: id }) });
+  assert.equal(rendered.props.initial, null);
+  assert.equal(rendered.props.seed.subject, 'Nyt brev: ' + content.subject);
+  assert.ok(conditions.some(([key, value]) => key === 'owner_id' && value === segment));
+  assert.equal(rendered.props.seed.provider_id, undefined);
 });

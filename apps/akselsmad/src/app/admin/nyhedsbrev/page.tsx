@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { requirePublisher } from '@/lib/data';
 import { newsletterConfigured } from '@/lib/newsletter-resend';
-import { newsletterStatus, type NewsletterCampaign } from '@/lib/newsletter';
+import { type NewsletterCampaign } from '@/lib/newsletter';
+import { newsletterTemplates } from '@/lib/newsletter-workspace';
+import { NewsletterCampaignList } from '@/components/newsletter-campaign-list';
 import { NewsletterAudience } from '@/components/newsletter-audience';
 export const metadata: Metadata = {
   title: 'Nyhedsbreve · Redaktion',
@@ -35,28 +37,36 @@ export default async function Page() {
           Se læsernes tilmeldingsside ↗
         </Link>
       </div>
-      <h2>Dine breve</h2>
-      <div className="draft-list">
-        {data.length ? (
-          data.map(
-            (
-              c: Pick<NewsletterCampaign, 'id' | 'content' | 'revision' | 'status' | 'updated_at'>,
-            ) => (
-              <Link key={c.id} href={'/admin/nyhedsbrev/' + c.id}>
-                <div>
-                  <h3>{c.content.subject}</h3>
-                  <p>
-                    Version {c.revision} · {new Date(c.updated_at).toLocaleDateString('da-DK')}
-                  </p>
-                </div>
-                <span className="status">{newsletterStatus[c.status]} ↗</span>
-              </Link>
-            ),
-          )
-        ) : (
-          <p>Dit første nyhedsbrev begynder med en kladde.</p>
-        )}
-      </div>
+      <section className="newsletter-template-section" aria-labelledby="newsletter-templates-title">
+        <span className="eyebrow">EN GOD START PÅ DIT NÆSTE BREV</span>
+        <h2 id="newsletter-templates-title">Vælg en retning.</h2>
+        <p>Skabeloner med tekst, du kan tilpasse. Du vælger selv opskrifter og artikler.</p>
+        <div className="newsletter-templates">
+          {newsletterTemplates.map((t) => (
+            <Link key={t.id} href={'/admin/nyhedsbrev/ny?template=' + t.id}>
+              <small>{t.tag}</small>
+              <h3>{t.label}</h3>
+              <p>{t.description}</p>
+              <span>Brug skabelonen →</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+      <NewsletterCampaignList
+        campaigns={(
+          data as Pick<
+            NewsletterCampaign,
+            'id' | 'content' | 'revision' | 'status' | 'updated_at'
+          >[]
+        ).map((c) => ({
+          id: c.id,
+          subject: c.content.subject,
+          title: c.content.title,
+          revision: c.revision,
+          status: c.status,
+          updated_at: c.updated_at,
+        }))}
+      />
       <NewsletterAudience configured={newsletterConfigured()} />
     </section>
   );

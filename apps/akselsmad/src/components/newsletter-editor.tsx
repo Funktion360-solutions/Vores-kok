@@ -9,35 +9,34 @@ import {
   type NewsletterContent,
   type NewsletterItem,
 } from '@/lib/newsletter';
-const empty: NewsletterContent = {
-  subject: 'Nyt fra Aksels køkken',
-  preheader: 'Opskrifter, guides og madglæde til dit køkken.',
-  title: 'Velkommen indenfor i mit køkken',
-  intro:
-    'Her er lidt nyt fra mit køkken. Jeg håber, du finder inspiration til noget, du har lyst til at lave.',
-  closing: 'Tak, fordi du læser med.',
-  items: [],
-};
+import { newsletterTemplate, moveNewsletterItem } from '@/lib/newsletter-workspace';
 export function NewsletterEditor({
   initial,
+  seed,
+  note,
   items,
   email,
   configured,
 }: {
   initial: NewsletterCampaign | null;
+  seed?: NewsletterContent;
+  note?: string;
   items: NewsletterItem[];
   email: string;
   configured: boolean;
 }) {
   const router = useRouter();
   const [campaign, setCampaign] = useState(initial);
-  const [content, setContent] = useState<NewsletterContent>(initial?.content || empty);
+  const [content, setContent] = useState<NewsletterContent>(
+    () => initial?.content || seed || newsletterTemplate(),
+  );
   const [html, setHtml] = useState(initial?.html_body || '');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [confirm, setConfirm] = useState(false);
   const [provider, setProvider] = useState('');
   const [filter, setFilter] = useState('');
+  const [kind, setKind] = useState('all');
   const editable = !campaign || campaign.status === 'draft';
   const dirty = !campaign || JSON.stringify(content) !== JSON.stringify(campaign.content);
   function change(key: keyof Omit<NewsletterContent, 'items'>, value: string) {
@@ -90,8 +89,10 @@ export function NewsletterEditor({
       setBusy(false);
     }
   }
-  const filtered = items.filter((i) =>
-    (i.title + ' ' + i.kind).toLocaleLowerCase('da').includes(filter.toLocaleLowerCase('da')),
+  const filtered = items.filter(
+    (i) =>
+      (kind === 'all' || i.kind === kind) &&
+      i.title.toLocaleLowerCase('da').includes(filter.toLocaleLowerCase('da')),
   );
   return (
     <section className="section newsletter-editor">
@@ -102,6 +103,15 @@ export function NewsletterEditor({
         </div>
         <span className="status">{campaign ? newsletterStatus[campaign.status] : 'Ny kladde'}</span>
       </div>
+      {note ? <aside className="newsletter-note">{note}</aside> : null}
+      {campaign && (campaign.status === 'draft' || campaign.status === 'sent') ? (
+        <div className="newsletter-reuse">
+          <Link className="button secondary" href={'/admin/nyhedsbrev/ny?copy=' + campaign.id}>
+            Genbrug det gemte brev som ny kladde →
+          </Link>
+          <p>En ny kladde skal gemmes, testes og godkendes separat.</p>
+        </div>
+      ) : null}
       {!configured ? (
         <aside className="newsletter-note">
           <strong>Mailopsætningen mangler.</strong>
@@ -154,6 +164,77 @@ export function NewsletterEditor({
             />
             <h2>Fra din kogebog og blog</h2>
             <p>Vælg højst seks offentlige indslag. De kommer med som kort med links.</p>
+            {content.items.length ? (
+              <div className="newsletter-selected">
+                <h3>Rækkefølge i mailen · {content.items.length}/6</h3>
+                <ol>
+                  {content.items.map((item, index) => {
+                    const info = items.find((x) => x.kind === item.kind && x.id === item.id);
+                    const title = info?.title || 'Indslag er ikke længere offentligt';
+                    return (
+                      <li key={item.kind + item.id}>
+                        <span>
+                          <small>{index + 1}</small>
+                          {title}
+                        </span>
+                        <div className="newsletter-item-controls">
+                          <button
+                            type="button"
+                            aria-label={'Flyt ' + title + ' op'}
+                            disabled={index === 0}
+                            onClick={() => {
+                              setContent((c) => ({
+                                ...c,
+                                items: moveNewsletterItem(c.items, index, -1),
+                              }));
+                              setHtml('');
+                            }}
+                          >
+                            ↑
+                          </button>
+                          <button
+                            type="button"
+                            aria-label={'Flyt ' + title + ' ned'}
+                            disabled={index === content.items.length - 1}
+                            onClick={() => {
+                              setContent((c) => ({
+                                ...c,
+                                items: moveNewsletterItem(c.items, index, 1),
+                              }));
+                              setHtml('');
+                            }}
+                          >
+                            ↓
+                          </button>
+                          <button
+                            type="button"
+                            aria-label={'Fjern ' + title}
+                            onClick={() => {
+                              setContent((c) => ({
+                                ...c,
+                                items: c.items.filter((_, i) => i !== index),
+                              }));
+                              setHtml('');
+                            }}
+                          >
+                            Fjern
+                          </button>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </div>
+            ) : null}
+            <label>
+              Type af indslag
+              <select value={kind} onChange={(e) => setKind(e.target.value)}>
+                <option value="all">Alt indhold</option>
+                <option value="recipe">Opskrifter</option>
+                <option value="guide">Guides</option>
+                <option value="blog">Blogindlæg</option>
+              </select>
+            </label>
             <label>
               Søg efter et indslag
               <input value={filter} onChange={(e) => setFilter(e.target.value)} />

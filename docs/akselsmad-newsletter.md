@@ -58,3 +58,15 @@ pnpm --filter @funktion360/akselsmad build
 `tests/newsletter.test.mjs` bruger mock af Resend og databasegrænser. Ingen rigtige mails sendes under disse tests. SQL-kontrollen i `supabase/tests/akselsmad_newsletter.sql` anvender syntetiske brugere i en transaktion, der rulles tilbage. Den verificerer samtykke, ejeradgang, versionskonflikter, frysning og afsendelseslås.
 
 Officielle referencer: [Resend Broadcasts](https://resend.com/docs/api-reference/broadcasts/create-broadcast), [Resend Segments](https://resend.com/docs/api-reference/segments/list-segment-contacts), [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security).
+
+## Redaktion: skabeloner, genbrug og rækkefølge
+
+Administrationen indeholder fire udgangspunkter: **Nyt fra køkkenet**, **En bid af Italien**, **Tid til at bage** og **Lær noget nyt**. De er tekstforslag, som du tilpasser til dit konkrete brev. De vælger ingen opskrifter automatisk og sender intet.
+
+Under Dine breve kan du søge efter emne eller overskrift, vælge status og sortere efter ændringstid eller emne. Oversigten viser antal kladder, breve klar til godkendelse, udsendelser der skal følges op og udsendte breve. Antallene kommer fra de breve, din redaktørkonto har adgang til.
+
+**Genbrug som ny kladde** er tilgængeligt for kladder og færdigt udsendte breve. Der kopieres kun indhold. Resend-ID, afsender-snapshot, testhistorik, revision og udsendelsesstatus følger ikke med. Den nye kladde gemmes først, når du trykker Gem kladde. Et indslag, der ikke længere er offentligt, udelades med en besked. Breve under klargøring eller afsendelse kan ikke kopieres, før deres status er afklaret.
+
+Valgte opskrifter og artikler vises i en særskilt, nummereret liste i editoren. Flyt dem op eller ned, eller fjern dem. Den samme rækkefølge bruges i forhåndsvisning og den færdige mail. Typefilteret kan afgrænse valget til opskrifter, guides eller blogindlæg. Højst seks indslag kan medtages.
+
+Denne opdatering kræver ingen nye miljøvariabler, pakker eller databasemigrationer.
