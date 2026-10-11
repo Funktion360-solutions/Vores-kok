@@ -39,6 +39,11 @@ export default async function Page({
       <Link className="button" href="/admin/indhold/ny">
         Ny guide eller blogindlæg ↗
       </Link>
+      <p>
+        <Link className="button secondary" href="/admin/kalender">
+          Redaktionskalender ↗
+        </Link>
+      </p>
       <form method="get" className="editorial-filters">
         <label>
           Søg

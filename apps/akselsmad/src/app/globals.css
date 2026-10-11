@@ -1659,3 +1659,113 @@ textarea::placeholder {
  .article-author{padding:18px;border:1px solid #bbb;background:none!important;font-size:10pt}
  body{background:white!important;color:black!important}
 }
+
+/* AkselsMad editorial calendar v1 */
+.calendar-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 2rem 0 1rem;
+}
+.calendar-toolbar h2 {
+  text-transform: capitalize;
+  margin: 0;
+}
+.calendar-toolbar > a {
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  padding: 0.7rem 1rem;
+  font-size: 1.3rem;
+}
+.calendar-month {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+  background: white;
+}
+.calendar-weekday {
+  padding: 0.8rem 0.4rem;
+  text-align: center;
+  background: var(--sand);
+  font-size: 0.85rem;
+}
+.calendar-weekday abbr {
+  text-decoration: none;
+}
+.calendar-day {
+  min-height: 135px;
+  padding: 0.6rem;
+  border-top: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+}
+.calendar-day > time {
+  display: inline-flex;
+  width: 1.8rem;
+  height: 1.8rem;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+}
+.calendar-today > time {
+  background: var(--ink);
+  color: white;
+  border-radius: 50%;
+  font-weight: 700;
+}
+.calendar-outside {
+  background: var(--paper);
+}
+.calendar-outside > time {
+  color: var(--muted);
+}
+.calendar-entry {
+  display: block;
+  border-radius: 9px;
+  background: var(--sand);
+  padding: 0.55rem;
+  margin-top: 0.4rem;
+  overflow-wrap: anywhere;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+.calendar-entry span,
+.calendar-entry small {
+  display: block;
+  font-size: 0.68rem;
+}
+.calendar-entry strong {
+  display: block;
+  margin: 0.2rem 0;
+}
+.calendar-planned {
+  background: var(--blue);
+}
+.calendar-entry:hover {
+  outline: 2px solid var(--blue-dark);
+}
+.calendar-agenda {
+  margin: 2.5rem 0;
+}
+.editorial-calendar section > h2 {
+  margin-top: 2rem;
+}
+@media (max-width: 750px) {
+  .calendar-month {
+    display: none;
+  }
+  .calendar-toolbar {
+    gap: 0.5rem;
+  }
+  .calendar-toolbar h2 {
+    font-size: 1.6rem;
+  }
+  .calendar-agenda .draft-list a {
+    flex-wrap: wrap;
+  }
+  .editorial-calendar .editorial-admin-nav {
+    flex-wrap: wrap;
+  }
+}
