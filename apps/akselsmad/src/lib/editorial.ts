@@ -1,3 +1,4 @@
+import { textBlocks, inlineText } from './rich-text';
 export type ArticleBlock =
   | { type: 'text'; text: string }
   | { type: 'image'; path: string; alt: string; caption: string }
@@ -52,4 +53,26 @@ export function articleStatus(article: Article | undefined, revision: number, no
   if (!article?.visible) return 'Kladde';
   if (Date.parse(article.published_at) > now) return 'Planlagt';
   return article.published_revision === revision ? 'Udgivet' : 'Udgivet · nye ændringer';
+}
+
+export function articleHeadingId(blockIndex: number, textIndex: number) {
+  return `article-heading-${blockIndex}-${textIndex}`;
+}
+export function articleOutline(content: ArticleContent) {
+  return content.blocks.flatMap((block, blockIndex) =>
+    block.type === 'text'
+      ? textBlocks(block.text).flatMap((part, textIndex) =>
+          part.kind === 'heading'
+            ? [
+                {
+                  id: articleHeadingId(blockIndex, textIndex),
+                  title: inlineText(part.text)
+                    .map((p) => p.text)
+                    .join(''),
+                },
+              ]
+            : [],
+        )
+      : [],
+  );
 }

@@ -33,5 +33,13 @@ export async function generateMetadata({
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const a = await get((await params).slug);
   if (!a) notFound();
-  return <ArticleBody content={a.content} kind="blog" publishedAt={a.published_at} />;
+  return (
+    <ArticleBody
+      content={a.content}
+      kind="blog"
+      publishedAt={a.published_at}
+      articleId={a.id}
+      publicPath={'/blog/' + a.slug}
+    />
+  );
 }

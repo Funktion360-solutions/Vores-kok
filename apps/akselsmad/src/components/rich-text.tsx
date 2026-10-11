@@ -23,7 +23,18 @@ function Inline({ text }: { text: string }) {
     </>
   );
 }
-export function RichText({ text, className = '' }: { text: string; className?: string }) {
+export function RichText({
+  text,
+  className = '',
+  headingPrefix,
+  headingLevel = 4,
+}: {
+  text: string;
+  className?: string;
+  headingPrefix?: string;
+  headingLevel?: 2 | 3 | 4;
+}) {
+  const Heading = ('h' + headingLevel) as 'h2' | 'h3' | 'h4';
   return (
     <div className={'rich-copy ' + className}>
       {textBlocks(text).map((block, n) =>
@@ -44,9 +55,13 @@ export function RichText({ text, className = '' }: { text: string; className?: s
             ))}
           </ol>
         ) : block.kind === 'heading' ? (
-          <h4 key={n}>
+          <Heading
+            key={n}
+            id={headingPrefix ? headingPrefix + n : undefined}
+            tabIndex={headingPrefix ? -1 : undefined}
+          >
             <Inline text={'text' in block ? block.text : ''} />
-          </h4>
+          </Heading>
         ) : block.kind === 'quote' ? (
           <blockquote key={n}>
             <Inline text={'text' in block ? block.text : ''} />
