@@ -49,6 +49,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Link href="/opskrifter">Find din næste opskrift</Link>
             <Link href="/om">Historien bag AkselsMad</Link>
             <Link href="/login">Funktion360-login</Link>
+            <Link href="/nyhedsbrev">Nyhedsbrev fra mit køkken</Link>
             <Link href="/privatliv">Privatliv</Link>
           </div>
           <small>© {new Date().getFullYear()} Aksel Slot · Et produkt fra Funktion360</small>

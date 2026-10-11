@@ -73,6 +73,7 @@ export default async function Admin({
       </div>
       <nav className="editorial-admin-nav" aria-label="Redaktion">
         <a href="#opskrifter">Opskrifter</a>
+        <Link href="/admin/nyhedsbrev">Nyhedsbreve ↗</Link>
         <Link href="/admin/indhold">Guides og blog ↗</Link>
         <Link href="/admin/indhold/ny">Skriv nyt indhold ↗</Link>
       </nav>

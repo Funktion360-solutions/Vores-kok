@@ -11,6 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: origin + '/om' },
     { url: origin + '/guides' },
     { url: origin + '/blog' },
+    { url: origin + '/nyhedsbrev' },
     ...editorial.map((a) => ({ url: origin + articlePath(a), lastModified: a.published_at })),
     ...recipes.map((r) => ({
       url: origin + '/opskrifter/' + r.slug,

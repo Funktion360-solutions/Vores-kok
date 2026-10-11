@@ -33,6 +33,24 @@ export default function Privacy() {
         Når du vælger at gemme en opskrift i Vores Kok, oprettes en kopi i den familie, du har
         valgt. Adgangen følger familiens eksisterende rettigheder.
       </p>
+      <h2>Nyhedsbrev</h2>
+      <p>
+        Tilmelding er frivillig og kræver dit aktive samtykke og en bekræftet e-mail. Vi gemmer
+        samtykketeksten, din konto og tidspunktet for tilmelding eller afmelding. Resend behandler
+        din e-mail, tilmelding og mailens leveringsoplysninger, så vi kan sende nyhedsbrevet.
+        Private familieopskrifter og billeder sendes ikke med.
+      </p>
+      <p>
+        Du kan afmelde dig under Nyhedsbrev eller via linket i mailen. Afmelding på hjemmesiden
+        fjerner dig kun fra AkselsMad-segmentet. Resends afmeldingslink kan også stoppe andre
+        marketingmails fra samme Resend-konto. Det påvirker ikke nødvendige konto- eller
+        supportmails.
+      </p>
+      <p>
+        Ved kontosletning slettes samtykkehistorikken i AkselsMad. Kontakt os også for at få din
+        adresse fjernet fra Resend. Administrationen sender kun til læsere, der har tilmeldt sig;
+        øvrige Funktion360-kunder tilføjes ikke automatisk.
+      </p>
       <h2>Kontakt</h2>
       <p>
         Kontakt Funktion360 på <a href="mailto:aksel@funktion360.dk">aksel@funktion360.dk</a> med

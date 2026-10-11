@@ -35,6 +35,9 @@ export default async function Page() {
             Åbn administration ↗
           </Link>
         ) : null}
+        <Link className="button secondary" href="/nyhedsbrev">
+          Mit nyhedsbrev
+        </Link>
         <SignOut />
       </div>
       <h2>Din kogebog i Vores Kok</h2>
