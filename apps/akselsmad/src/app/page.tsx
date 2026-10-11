@@ -1,8 +1,10 @@
 import Link from 'next/link';
 import { publicRecipes } from '@/lib/data';
+import { articles } from '@/lib/editorial-data';
+import { ArticleCard } from '@/components/article-card';
 import { RecipeCard } from '@/components/recipe-card';
 export default async function Home() {
-  const rows = await publicRecipes();
+  const [rows, editorial] = await Promise.all([publicRecipes(), articles()]);
   return (
     <>
       <section className="hero">
@@ -91,6 +93,40 @@ export default async function Home() {
             </Link>
           ))}
         </div>
+      </section>
+      <section className="section editorial-home">
+        <div className="section-heading">
+          <div>
+            <span className="eyebrow">MERE END EN OPSKRIFT</span>
+            <h2>Viden, fortællinger og madglæde.</h2>
+          </div>
+          <div className="block-actions">
+            <Link href="/guides">Alle guides ↗</Link>
+            <Link href="/blog">Fra mit køkken ↗</Link>
+          </div>
+        </div>
+        {editorial.length ? (
+          <div className="article-grid">
+            {editorial.slice(0, 3).map((a) => (
+              <ArticleCard key={a.id} article={a} />
+            ))}
+          </div>
+        ) : (
+          <div className="editorial-intro-grid">
+            <Link href="/guides">
+              <span className="eyebrow">KØKKENETS HÅNDBOG</span>
+              <h3>Bliv klogere i køkkenet.</h3>
+              <p>Guides til bagning, råvarer og teknikker. De første er på vej.</p>
+              <span>Se guides ↗</span>
+            </Link>
+            <Link href="/blog">
+              <span className="eyebrow">FRA MIT KØKKEN</span>
+              <h3>Plads til fortællinger.</h3>
+              <p>Madglæde, italiensk inspiration og forsøg fra mit køkken.</p>
+              <span>Se bloggen ↗</span>
+            </Link>
+          </div>
+        )}
       </section>
       <section className="about-teaser">
         <span className="eyebrow">MENNESKET BAG OPSKRIFTERNE</span>

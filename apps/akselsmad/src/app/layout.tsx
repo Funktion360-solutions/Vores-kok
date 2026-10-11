@@ -25,6 +25,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Link href="/opskrifter">Opskrifter</Link>
             <Link href="/opskrifter?kategori=Boller">Bagning</Link>
             <Link href="/opskrifter?q=italiensk">Italiensk</Link>
+            <Link href="/guides">Guides</Link>
+            <Link href="/blog">Blog</Link>
             <Link href="/om">Om Aksel</Link>
             <Link className="nav-account" href="/konto">
               Mit køkken ↗
