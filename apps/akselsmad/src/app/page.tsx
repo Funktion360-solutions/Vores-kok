@@ -128,6 +128,24 @@ export default async function Home() {
           </div>
         )}
       </section>
+      <section className="section edition-home">
+        <span className="eyebrow">GÅ PÅ OPDAGELSE I MIT KØKKEN</span>
+        <h2>Madglæde med en rød tråd.</h2>
+        <div className="edition-admin-start">
+          <Link href="/forloeb">
+            <span className="eyebrow">LÆR OG LAV</span>
+            <h3>Temaforløb</h3>
+            <p>Italienske middage, pasta, salater og teknikker. Ét trin ad gangen.</p>
+            <span>Se temaforløb ↗</span>
+          </Link>
+          <Link href="/kogeboeger">
+            <span className="eyebrow">LÆS OG BLIV INSPIRERET</span>
+            <h3>Mine kogebøger</h3>
+            <p>Opskrifter og fortællinger samlet omkring det, jeg elsker at lave.</p>
+            <span>Se kogebøger ↗</span>
+          </Link>
+        </div>
+      </section>
       <section className="about-teaser">
         <span className="eyebrow">MENNESKET BAG OPSKRIFTERNE</span>
         <h2>Et køkken fuldt af drømme.</h2>

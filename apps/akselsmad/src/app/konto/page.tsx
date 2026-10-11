@@ -38,6 +38,9 @@ export default async function Page() {
         <Link className="button secondary" href="/nyhedsbrev">
           Mit nyhedsbrev
         </Link>
+        <Link className="button secondary" href="/konto/forloeb">
+          Mine temaforløb
+        </Link>
         <SignOut />
       </div>
       <h2>Din kogebog i Vores Kok</h2>

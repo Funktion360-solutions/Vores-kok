@@ -15,6 +15,12 @@ export default function Privacy() {
         under Mine favoritter og samlinger. Når en konto slettes, slettes også dens favoritter og
         samlinger.
       </p>
+      <h2>Din fremgang i temaforløb</h2>
+      <p>
+        Når du markerer et trin som gennemført, gemmer vi forløbet, trinnet og tidspunktet på din
+        konto. Kun du kan se dine markeringer. Du kan fjerne dem igen i forløbet. Ved kontosletning
+        slettes også dine markeringer.
+      </p>
       <h2>PDF-download</h2>
       <p>
         Vi gemmer, hvilke opskrifter din konto har hentet som PDF, og tidspunktet for den første
