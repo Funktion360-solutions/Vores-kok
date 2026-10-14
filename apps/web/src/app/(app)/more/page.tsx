@@ -1,3 +1,4 @@
+import { Funktion360Account } from '@/components/funktion360-account';
 import { CalendarDays, Download, LogOut, MessageCircle, Refrigerator, Settings, ShoppingBasket, Users } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -24,6 +25,7 @@ export default function MorePage() {
   return (
     <div className="mx-auto max-w-4xl">
       <PageHeader title="Mere" />
+      <Funktion360Account />
       <ul className="grid gap-4 sm:grid-cols-2">
         <Item href="/kitchen" icon={<Refrigerator className="size-6" />} title="Mit køkken" text="Køleskab, fryser og skabe — og hvad der skal bruges snart." />
         <Item href="/family" icon={<Users className="size-6" />} title="Familie" text="Personerne og historierne bag opskrifterne." />
