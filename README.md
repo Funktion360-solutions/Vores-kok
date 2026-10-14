@@ -35,7 +35,6 @@ pnpm migration:rehearse              # generalprøve på migrering fra Mors Opsk
 | Sikkerhed, RLS, storage, roller | [docs/security/rls.md](docs/security/rls.md) |
 | Mobil og offline/synkronisering | [docs/mobile.md](docs/mobile.md) |
 | Gennemgang af Mors Opskrifter | [docs/legacy/audit.md](docs/legacy/audit.md) |
-| Migrering fra Mors Opskrifter | [docs/legacy/migration-mapping.md](docs/legacy/migration-mapping.md) |
 | Backup, gendannelse, drift | [docs/operations.md](docs/operations.md) |
 | AI-plan (fase 3) | [docs/ai.md](docs/ai.md) |
 | Fase 1-rapport | [docs/reports/phase-1.md](docs/reports/phase-1.md) |
