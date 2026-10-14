@@ -4,6 +4,7 @@ import {redirect} from 'next/navigation';
 import {createClient} from '@/lib/supabase/server';
 import {linkConfig,LINK_COOKIE} from '@/lib/funktion360/link-config';
 import {issueLinkProof} from '@/lib/funktion360/link-proof';
+import {verifyLinkingMfa} from '@/lib/funktion360/link-mfa';
 import {PROVIDER} from '@/lib/funktion360/link-checks';
 export async function linkAccount(form:FormData) {
   let cfg:ReturnType<typeof linkConfig>;
@@ -12,13 +13,16 @@ export async function linkAccount(form:FormData) {
   const {data:{user},error:authError}=await db.auth.getUser();
   if(authError || !user?.email) redirect('/login?next=%2Fauth%2Ffunktion360%2Flink');
   if(!cfg.allowed.includes(user.id))redirect('/auth/funktion360/link?notice=disabled');
-  if(user.factors?.some(f=>f.status==='verified')) redirect('/auth/funktion360/link?notice=mfa');
   if(user.identities?.some(i=>i.provider===PROVIDER)) redirect('/auth/funktion360/link?notice=already');
   const password=String(form.get('password') || '');
   if(form.get('confirm')!=='yes' || !password || password.length>256) redirect('/auth/funktion360/link?notice=invalid');
   // IDs and email are derived from the verified session, never from form fields.
   const {data:reauth,error}=await db.auth.signInWithPassword({email:user.email,password});
   if(error || reauth.user?.id!==user.id) redirect('/auth/funktion360/link?notice=password');
+  const {data:{user:fresh},error:freshError}=await db.auth.getUser();
+  if(freshError || fresh?.id!==user.id)redirect('/auth/funktion360/link?notice=failed');
+  const validMfa=await verifyLinkingMfa(db.auth.mfa,fresh.factors,String(form.get('factorId') || ''),String(form.get('mfaCode') || '').trim());
+  if(!validMfa)redirect('/auth/funktion360/link?notice=mfa');
   const {data:flow,error:linkError}=await db.auth.linkIdentity({provider:PROVIDER,options:{redirectTo:cfg.origin+'/auth/funktion360/link/callback',scopes:'openid email profile',skipBrowserRedirect:true}});
   if(linkError || !flow.url) {
     const code=linkError?.code;
