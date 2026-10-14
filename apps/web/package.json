@@ -9,7 +9,9 @@
     "start": "next start --port 3000",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:sso": "node --test src/lib/funktion360/*.test.ts",
+    "dev:sso": "next dev --hostname localhost --port 3001"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "5.3.0",
@@ -25,7 +27,8 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "server-only": "0.0.1",
-    "@vores-kok/ui": "workspace:*"
+    "@vores-kok/ui": "workspace:*",
+    "openid-client": "6.8.8"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",

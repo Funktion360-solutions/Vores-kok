@@ -25,7 +25,7 @@ export function LoginForm() {
     const { error } = await getBrowserClient().auth.signInWithPassword(parsed.data);
     if (error) {
       setPending(false);
-      return setErrors({ _: error.code === 'invalid_credentials' ? 'Forkert e-mail eller adgangskode.' : 'Kunne ikke logge ind. Prøv igen.' });
+      return setErrors({ _: error.code === 'invalid_credentials' ? 'Forkert e-mail eller adgangskode.' : `Kunne ikke logge ind. Fejlkode: ${error.code && /^[a-z0-9_]{1,80}$/.test(error.code) ? error.code : 'network_or_unknown'}; status: ${Number.isInteger(error.status) ? error.status : 'ukendt'}.` });
     }
     router.replace(safeNext(params.get('next')));
     router.refresh();

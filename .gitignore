@@ -25,3 +25,7 @@ supabase/.branches/
 apps/mobile/test-results/
 apps/mobile/e2e/test-results/
 migration-report*.json
+
+.funktion360-sso-pilot/
+
+.id-update-backups/
