@@ -1,6 +1,6 @@
 # Vores Kok
 
-Familiens fælles, private digitale køkken — kogebog, familiehistorie og (snart) madplan, indkøb, køkken og kogetilstand. Afløser for *Mors Opskrifter*.
+Familiens fælles, private digitale køkken — kogebog, familiehistorie og (snart) madplan, indkøb, køkken og kogetilstand. 
 
 - **Web**: Next.js 16 (`apps/web`) — desktop, tablet og mobil-browser
 - **iPhone/iPad**: Expo / React Native (`apps/mobile`) — én universel app med offline-cache og iPad-split-visning
